@@ -221,7 +221,7 @@
             updateAlcalaCharts();
         }
 
-        function smoothFlowSeries(values, radius = 6) {
+        function smoothFlowSeries(values, radius = 8) {
             if (!Array.isArray(values) || values.length === 0) return [];
             const smoothPass = input => input.map((value, index) => {
                 let weightedSum = 0;
@@ -270,8 +270,8 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 6) },
-                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 6) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
+                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
@@ -372,8 +372,8 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 6) },
-                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 6) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
+                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
