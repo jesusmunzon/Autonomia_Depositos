@@ -221,6 +221,40 @@
             updateAlcalaCharts();
         }
 
+
+        function getFastLineChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                normalized: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                    axis: 'x'
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false,
+                        animation: false
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 0,
+                        hoverRadius: 4,
+                        hitRadius: 12
+                    },
+                    line: {
+                        tension: 0.25
+                    }
+                }
+            };
+        }
+
         function updateAlcalaCharts() {
             const sim = state.alcala.simulation;
             const minNivel = parseFloat(state.alcala.nivelMinimo);
@@ -253,17 +287,13 @@
                             }
                         ]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
+                    options: getFastLineChartOptions()
                 });
             } else {
                 chartAlcNivel.data.labels = timeLabels;
                 chartAlcNivel.data.datasets[0].data = sim.map(s => s.nivel);
                 chartAlcNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartAlcNivel.update();
+                chartAlcNivel.update('none');
             }
 
             if (!chartAlcCaudales) {
@@ -295,17 +325,13 @@
                             }
                         ]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
+                    options: getFastLineChartOptions()
                 });
             } else {
                 chartAlcCaudales.data.labels = timeLabels;
                 chartAlcCaudales.data.datasets[0].data = sim.map(s => s.entrada);
                 chartAlcCaudales.data.datasets[1].data = sim.map(s => s.salidaTotal);
-                chartAlcCaudales.update();
+                chartAlcCaudales.update('none');
             }
         }
 
@@ -387,17 +413,13 @@
                             }
                         ]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
+                    options: getFastLineChartOptions()
                 });
             } else {
                 chartEntNivel.data.labels = timeLabels;
                 chartEntNivel.data.datasets[0].data = sim.map(s => s.nivel);
                 chartEntNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartEntNivel.update();
+                chartEntNivel.update('none');
             }
 
             if (!chartEntCaudales) {
@@ -429,17 +451,13 @@
                             }
                         ]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
+                    options: getFastLineChartOptions()
                 });
             } else {
                 chartEntCaudales.data.labels = timeLabels;
                 chartEntCaudales.data.datasets[0].data = sim.map(s => s.entrada);
                 chartEntCaudales.data.datasets[1].data = sim.map(s => s.salida1);
-                chartEntCaudales.update();
+                chartEntCaudales.update('none');
             }
         }
 
