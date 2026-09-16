@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- SheetJS CDN for reading Excel files -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Font Awesome icons CDN -->
@@ -15,8 +15,8 @@
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="config.js?v=20260916-2"></script>
-    <link rel="stylesheet" href="styles.css?v=20260916-2">
+    <script src="config.js?v=20260916-3"></script>
+    <link rel="stylesheet" href="styles.css?v=20260916-3">
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
@@ -171,10 +171,13 @@
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
                             <i class="fa-solid fa-chart-line text-brand-500 mr-2"></i> Evolución de Nivel de Agua (Multidía)
                         </h3>
-                        <span class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-semibold">m (Metros)</span>
+                        <div class="flex flex-wrap items-center justify-end gap-2 text-[11px] font-bold">
+                            <span id="alc-chart-max" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg shadow-sm">Máx: --</span>
+                            <span id="alc-chart-min" class="bg-rose-600 text-white px-2.5 py-1 rounded-lg shadow-sm">Mín: --</span>
+                        </div>
                     </div>
                     <div class="h-[450px] relative w-full">
-                        <canvas id="chart-alcala-nivel"></canvas>
+                        <div id="chart-alcala-nivel" class="w-full h-full"></div>
                     </div>
                 </div>
 
@@ -187,7 +190,7 @@
                         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
                     <div class="h-[450px] relative w-full">
-                        <canvas id="chart-alcala-caudales"></canvas>
+                        <div id="chart-alcala-caudales" class="w-full h-full"></div>
                     </div>
                 </div>
             </div>
@@ -290,10 +293,13 @@
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
                             <i class="fa-solid fa-chart-line text-indigo-500 mr-2"></i> Evolución de Nivel de Agua (Entronque)
                         </h3>
-                        <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md font-semibold">m (Metros)</span>
+                        <div class="flex flex-wrap items-center justify-end gap-2 text-[11px] font-bold">
+                            <span id="ent-chart-max" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg shadow-sm">Máx: --</span>
+                            <span id="ent-chart-min" class="bg-rose-600 text-white px-2.5 py-1 rounded-lg shadow-sm">Mín: --</span>
+                        </div>
                     </div>
                     <div class="h-[450px] relative w-full">
-                        <canvas id="chart-entronque-nivel"></canvas>
+                        <div id="chart-entronque-nivel" class="w-full h-full"></div>
                     </div>
                 </div>
 
@@ -306,7 +312,7 @@
                         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
                     <div class="h-[450px] relative w-full">
-                        <canvas id="chart-entronque-caudales"></canvas>
+                        <div id="chart-entronque-caudales" class="w-full h-full"></div>
                     </div>
                 </div>
             </div>
@@ -525,6 +531,6 @@
         <p>© 2026 Plataforma de Simulación Hidráulica | Cálculo en tiempo real con factores de embalse 1329 y 1798</p>
     </footer>
 
-    <script src="app.js?v=20260916-2"></script>
+    <script src="app.js?v=20260916-3"></script>
 </body>
 </html>

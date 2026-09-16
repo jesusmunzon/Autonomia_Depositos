@@ -220,119 +220,61 @@
 
             updateAlcalaCharts();
         }
-
-
-        function getFastLineChartOptions() {
-            return {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                normalized: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                    axis: 'x'
-                },
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        enabled: true,
-                        mode: 'index',
-                        intersect: false,
-                        animation: false
-                    }
-                },
-                elements: {
-                    point: {
-                        radius: 0,
-                        hoverRadius: 4,
-                        hitRadius: 12
-                    },
-                    line: {
-                        tension: 0.25
-                    }
-                }
-            };
-        }
-
         function updateAlcalaCharts() {
             const sim = state.alcala.simulation;
-            const minNivel = parseFloat(state.alcala.nivelMinimo);
-            const timeLabels = sim.map(s => s.hora);
+            if (!sim || sim.length === 0) return;
 
-            if (!chartAlcNivel) {
-                const ctx = document.getElementById('chart-alcala-nivel').getContext('2d');
-                chartAlcNivel = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Nivel Simulado (m)',
-                                data: sim.map(s => s.nivel),
-                                borderColor: '#0284c7',
-                                backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Nivel Mínimo (Límite)',
-                                data: Array(sim.length).fill(minNivel),
-                                borderColor: '#ef4444',
-                                borderDash: [5, 5],
-                                borderWidth: 2,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: getFastLineChartOptions()
-                });
-            } else {
-                chartAlcNivel.data.labels = timeLabels;
-                chartAlcNivel.data.datasets[0].data = sim.map(s => s.nivel);
-                chartAlcNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartAlcNivel.update('none');
-            }
+            const labels = sim.map(s => s.hora);
+            const niveles = sim.map(s => Number(s.nivel.toFixed(3)));
+            const minLimit = parseFloat(state.alcala.nivelMinimo);
+            const maxValue = Math.max(...niveles);
+            const minValue = Math.min(...niveles);
+            const maxIndex = niveles.indexOf(maxValue);
+            const minIndex = niveles.indexOf(minValue);
 
-            if (!chartAlcCaudales) {
-                const ctx = document.getElementById('chart-alcala-caudales').getContext('2d');
-                chartAlcCaudales = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Caudal Entrada (l/s)',
-                                data: sim.map(s => s.entrada),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Salida Total (Salida 1 + Burguillos)',
-                                data: sim.map(s => s.salidaTotal),
-                                borderColor: '#e11d48',
-                                backgroundColor: 'rgba(225, 29, 72, 0.08)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            }
-                        ]
-                    },
-                    options: getFastLineChartOptions()
-                });
-            } else {
-                chartAlcCaudales.data.labels = timeLabels;
-                chartAlcCaudales.data.datasets[0].data = sim.map(s => s.entrada);
-                chartAlcCaudales.data.datasets[1].data = sim.map(s => s.salidaTotal);
-                chartAlcCaudales.update('none');
-            }
+            document.getElementById('alc-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
+            document.getElementById('alc-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
+
+            const levelOptions = {
+                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                series: [{ name: 'Nivel del depósito', data: niveles }],
+                colors: ['#0284c7'],
+                stroke: { curve: 'smooth', width: 3 },
+                markers: { size: 0, hover: { size: 5 } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
+                tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
+                legend: { show: false },
+                grid: { borderColor: '#e2e8f0' },
+                annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
+            };
+
+            const flowOptions = {
+                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                series: [
+                    { name: 'Entrada', data: sim.map(s => Number(s.entrada.toFixed(2))) },
+                    { name: 'Salida 1', data: sim.map(s => Number(s.salida1.toFixed(2))) },
+                    { name: 'Burguillos', data: sim.map(s => Number(s.burguillos.toFixed(2))) }
+                ],
+                colors: ['#10b981', '#0284c7', '#f59e0b'],
+                stroke: { curve: 'smooth', width: [3, 3, 2.5] },
+                markers: { size: 0, hover: { size: 5 } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
+                tooltip: { shared: false, intersect: false, followCursor: true, y: { formatter: v => `${v.toFixed(2)} l/s` } },
+                legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                grid: { borderColor: '#e2e8f0' }
+            };
+
+            if (chartAlcNivel) chartAlcNivel.destroy();
+            chartAlcNivel = new ApexCharts(document.querySelector('#chart-alcala-nivel'), levelOptions);
+            chartAlcNivel.render();
+
+            if (chartAlcCaudales) chartAlcCaudales.destroy();
+            chartAlcCaudales = new ApexCharts(document.querySelector('#chart-alcala-caudales'), flowOptions);
+            chartAlcCaudales.render();
         }
 
         // Update UI for Entronque
@@ -383,82 +325,58 @@
 
         function updateEntronqueCharts() {
             const sim = state.entronque.simulation;
-            const minNivel = parseFloat(state.entronque.nivelMinimo);
-            const timeLabels = sim.map(s => s.hora);
+            if (!sim || sim.length === 0) return;
 
-            if (!chartEntNivel) {
-                const ctx = document.getElementById('chart-entronque-nivel').getContext('2d');
-                chartEntNivel = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Nivel Simulado (m)',
-                                data: sim.map(s => s.nivel),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Nivel Mínimo (Límite)',
-                                data: Array(sim.length).fill(minNivel),
-                                borderColor: '#ef4444',
-                                borderDash: [5, 5],
-                                borderWidth: 2,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: getFastLineChartOptions()
-                });
-            } else {
-                chartEntNivel.data.labels = timeLabels;
-                chartEntNivel.data.datasets[0].data = sim.map(s => s.nivel);
-                chartEntNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartEntNivel.update('none');
-            }
+            const labels = sim.map(s => s.hora);
+            const niveles = sim.map(s => Number(s.nivel.toFixed(3)));
+            const minLimit = parseFloat(state.entronque.nivelMinimo);
+            const maxValue = Math.max(...niveles);
+            const minValue = Math.min(...niveles);
+            const maxIndex = niveles.indexOf(maxValue);
+            const minIndex = niveles.indexOf(minValue);
 
-            if (!chartEntCaudales) {
-                const ctx = document.getElementById('chart-entronque-caudales').getContext('2d');
-                chartEntCaudales = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Entrada (l/s)',
-                                data: sim.map(s => s.entrada),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Salida 1 (l/s)',
-                                data: sim.map(s => s.salida1),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            }
-                        ]
-                    },
-                    options: getFastLineChartOptions()
-                });
-            } else {
-                chartEntCaudales.data.labels = timeLabels;
-                chartEntCaudales.data.datasets[0].data = sim.map(s => s.entrada);
-                chartEntCaudales.data.datasets[1].data = sim.map(s => s.salida1);
-                chartEntCaudales.update('none');
-            }
+            document.getElementById('ent-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
+            document.getElementById('ent-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
+
+            const levelOptions = {
+                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                series: [{ name: 'Nivel del depósito', data: niveles }],
+                colors: ['#6366f1'],
+                stroke: { curve: 'smooth', width: 3 },
+                markers: { size: 0, hover: { size: 5 } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
+                tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
+                legend: { show: false },
+                grid: { borderColor: '#e2e8f0' },
+                annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
+            };
+
+            const flowOptions = {
+                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                series: [
+                    { name: 'Entrada', data: sim.map(s => Number(s.entrada.toFixed(2))) },
+                    { name: 'Salida 1', data: sim.map(s => Number(s.salida1.toFixed(2))) }
+                ],
+                colors: ['#10b981', '#6366f1'],
+                stroke: { curve: 'smooth', width: [3, 3] },
+                markers: { size: 0, hover: { size: 5 } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
+                tooltip: { shared: false, intersect: false, followCursor: true, y: { formatter: v => `${v.toFixed(2)} l/s` } },
+                legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                grid: { borderColor: '#e2e8f0' }
+            };
+
+            if (chartEntNivel) chartEntNivel.destroy();
+            chartEntNivel = new ApexCharts(document.querySelector('#chart-entronque-nivel'), levelOptions);
+            chartEntNivel.render();
+
+            if (chartEntCaudales) chartEntCaudales.destroy();
+            chartEntCaudales = new ApexCharts(document.querySelector('#chart-entronque-caudales'), flowOptions);
+            chartEntCaudales.render();
         }
 
         function updateResumenUI() {
@@ -545,67 +463,7 @@
 
             recEl.innerHTML = htmlRec;
 
-            if (!chartResNiveles) {
-                const ctx = document.getElementById('chart-resumen-niveles').getContext('2d');
-                chartResNiveles = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: simAlc.map(s => s.hora),
-                        datasets: [
-                            {
-                                label: 'Nivel Alcalá del Río (m)',
-                                data: simAlc.map(s => s.nivel),
-                                borderColor: '#0284c7',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2.5
-                            },
-                            {
-                                label: 'Nivel Entronque (m)',
-                                data: simEnt.map(s => s.nivel),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2.5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartResNiveles.data.labels = simAlc.map(s => s.hora);
-                chartResNiveles.data.datasets[0].data = simAlc.map(s => s.nivel);
-                chartResNiveles.data.datasets[1].data = simEnt.map(s => s.nivel);
-                chartResNiveles.update();
-            }
-
-            const totalSalida1Alc = simAlc.reduce((a, s) => a + s.salida1, 0);
-            const totalBurguillos = simAlc.reduce((a, s) => a + s.burguillos, 0);
-            const totalSalida1Ent = simEnt.reduce((a, s) => a + s.salida1, 0);
-
-            if (!chartResDistribucion) {
-                const ctx = document.getElementById('chart-resumen-distribucion').getContext('2d');
-                chartResDistribucion = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Salida 1 Alcalá', 'Burguillos (Alcalá)', 'Salida 1 Entronque'],
-                        datasets: [{
-                            data: [totalSalida1Alc, totalBurguillos, totalSalida1Ent],
-                            backgroundColor: ['#0284c7', '#f59e0b', '#6366f1']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'right' } }
-                    }
-                });
-            } else {
-                chartResDistribucion.data.datasets[0].data = [totalSalida1Alc, totalBurguillos, totalSalida1Ent];
-                chartResDistribucion.update();
-            }
+            // Las gráficas principales usan ApexCharts. El resumen conserva sus indicadores y recomendaciones.
         }
 
         // Modal Functions for Excel Data
