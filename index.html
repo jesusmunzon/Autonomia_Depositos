@@ -34,17 +34,6 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div class="flex items-center bg-slate-800 text-xs px-3 py-1.5 rounded-xl border border-slate-700 text-slate-300">
-                        <i class="fa-solid fa-calendar-days text-brand-400 mr-2"></i>
-                        <span class="mr-2 font-medium hidden sm:inline">Simulación:</span>
-                        <select id="select-horizon-global" onchange="changeGlobalHorizon(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
-                            <option value="1">1 Día (24 h)</option>
-                            <option value="2">2 Días (48 h)</option>
-                            <option value="3">3 Días (72 h)</option>
-                            <option value="5">5 Días (120 h)</option>
-                            <option value="7" selected>7 Días (168 h)</option>
-                        </select>
-                    </div>
                     <button onclick="exportSummaryPDF()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs px-3 py-2 rounded-lg transition-all flex items-center font-medium shadow-sm">
                         <i class="fa-solid fa-file-export mr-1.5"></i> Exportar
                     </button>
@@ -82,7 +71,6 @@
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fa-solid fa-sliders text-brand-500 mr-2"></i> Parámetros de Operación - Alcalá del Río
                             </h2>
-                            <span id="alc-data-source-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Perfil Estándar</span>
                         </div>
                         <p class="text-xs text-slate-500">Factor volumétrico: <span class="font-semibold text-slate-700">1329</span> | Configura o carga tus datos de Excel</p>
                     </div>
@@ -215,7 +203,6 @@
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fa-solid fa-sliders text-indigo-500 mr-2"></i> Parámetros de Operación - Entronque
                             </h2>
-                            <span id="ent-data-source-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Perfil Estándar</span>
                         </div>
                         <p class="text-xs text-slate-500">Factor volumétrico: <span class="font-semibold text-slate-700">1798</span> | Sin derivación Burguillos</p>
                     </div>

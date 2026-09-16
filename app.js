@@ -24,7 +24,6 @@
         // Global State
         const state = {
             currentTab: 'alcala',
-            horizonDays: 7,
             alcala: {
                 burguillosOption: 'con',
                 useDefaultInlet: true,
@@ -36,6 +35,9 @@
                 salida1Profile: [...PATTERN_SALIDA_1_ALCALA],
                 burguillosProfile: [...PATTERN_BURGUILLOS],
                 factor: 1329,
+                maxHours: 168,
+                visibleHours: 168,
+                breachHour: -1,
                 simulation: []
             },
             entronque: {
@@ -47,6 +49,9 @@
                 entradaProfile: [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT],
                 salida1Profile: [...PATTERN_SALIDA_1_ENTRONQUE],
                 factor: 1798,
+                maxHours: 168,
+                visibleHours: 168,
+                breachHour: -1,
                 simulation: []
             }
         };
@@ -107,37 +112,31 @@
             const isBurguillosActive = state.alcala.burguillosOption === 'con';
             const useExcelProfile = state.alcala.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
-            const totalHours = 24 * state.horizonDays;
-            const labels = getTimeLabels(state.horizonDays);
+            const minNivel = parseFloat(state.alcala.nivelMinimo) || 0;
+            const maxHours = state.alcala.maxHours;
+            const labels = getTimeLabels(Math.ceil(maxHours / 24));
+            let breachHour = -1;
 
-            for (let i = 0; i < totalHours; i++) {
+            for (let i = 0; i < maxHours; i++) {
                 const hourOfDay = i % 24;
                 const dayNum = Math.floor(i / 24) + 1;
-
                 const entrada = useExcelProfile ? (state.alcala.entradaProfile[hourOfDay] ?? 44.36) : fixedInletVal;
                 const salida1 = state.alcala.salida1Profile[hourOfDay] ?? 29.9;
                 const burguillos = isBurguillosActive ? (state.alcala.burguillosProfile[hourOfDay] ?? 0) : 0;
                 const salidaTotal = salida1 + burguillos;
                 const netFlow = entrada - salidaTotal;
-
                 const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
 
-                data.push({
-                    hora: labels[i],
-                    dayNum,
-                    hourOfDay,
-                    entrada,
-                    salida1,
-                    burguillos,
-                    salidaTotal,
-                    netFlow,
-                    nivel: nextNivel
-                });
-
+                if (breachHour === -1 && nextNivel <= minNivel) breachHour = i + 1;
+                data.push({ hora: labels[i], dayNum, hourOfDay, entrada, salida1, burguillos, salidaTotal, netFlow, nivel: nextNivel });
                 currentNivel = nextNivel;
             }
 
-            state.alcala.simulation = data;
+            let visibleHours = maxHours;
+            if (breachHour !== -1) visibleHours = Math.min(maxHours, Math.max(24, breachHour + 3));
+            state.alcala.visibleHours = visibleHours;
+            state.alcala.breachHour = breachHour;
+            state.alcala.simulation = data.slice(0, visibleHours);
         }
 
         // Hydraulic calculation engine for Entronque
@@ -147,35 +146,29 @@
             const factor = state.entronque.factor;
             const useExcelProfile = state.entronque.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
-            const totalHours = 24 * state.horizonDays;
-            const labels = getTimeLabels(state.horizonDays);
+            const minNivel = parseFloat(state.entronque.nivelMinimo) || 0;
+            const maxHours = state.entronque.maxHours;
+            const labels = getTimeLabels(Math.ceil(maxHours / 24));
+            let breachHour = -1;
 
-            for (let i = 0; i < totalHours; i++) {
+            for (let i = 0; i < maxHours; i++) {
                 const hourOfDay = i % 24;
                 const dayNum = Math.floor(i / 24) + 1;
-
                 const entrada = useExcelProfile ? (state.entronque.entradaProfile[hourOfDay] ?? 48.5) : fixedInletVal;
                 const salida1 = state.entronque.salida1Profile[hourOfDay] ?? 30.0;
                 const netFlow = entrada - salida1;
-
                 const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
 
-                data.push({
-                    hora: labels[i],
-                    dayNum,
-                    hourOfDay,
-                    entrada,
-                    salida1,
-                    burguillos: 0,
-                    salidaTotal: salida1,
-                    netFlow,
-                    nivel: nextNivel
-                });
-
+                if (breachHour === -1 && nextNivel <= minNivel) breachHour = i + 1;
+                data.push({ hora: labels[i], dayNum, hourOfDay, entrada, salida1, burguillos: 0, salidaTotal: salida1, netFlow, nivel: nextNivel });
                 currentNivel = nextNivel;
             }
 
-            state.entronque.simulation = data;
+            let visibleHours = maxHours;
+            if (breachHour !== -1) visibleHours = Math.min(maxHours, Math.max(24, breachHour + 3));
+            state.entronque.visibleHours = visibleHours;
+            state.entronque.breachHour = breachHour;
+            state.entronque.simulation = data.slice(0, visibleHours);
         }
 
         // Update UI for Alcalá
@@ -199,7 +192,7 @@
             const burguillosAvg = Math.round(sim.reduce((acc, s) => acc + s.burguillos, 0) / sim.length);
             const diffNivel = nivelFinal - state.alcala.nivelInicio;
 
-            document.getElementById('alc-label-nivel-final').innerText = `Nivel Final (${state.horizonDays}d)`;
+            document.getElementById('alc-label-nivel-final').innerText = 'Nivel Final';
             document.getElementById('alc-kpi-nivel-final').innerText = `${nivelFinal.toFixed(2)} m`;
             
             const diffEl = document.getElementById('alc-kpi-diff-nivel');
@@ -220,22 +213,10 @@
                 statusMinEl.className = 'text-xs font-semibold text-emerald-600';
             }
 
-            document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.horizonDays} día(s)`;
+            document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('alc-kpi-salida-total').innerText = `${salidaTotalAvg} l/s`;
             document.getElementById('alc-kpi-burguillos-status').innerText = `Burguillos medio: ${state.alcala.burguillosOption === 'con' ? burguillosAvg + ' l/s' : '0 l/s'}`;
-
-            // Update badge for data source
-            const badge = document.getElementById('alc-data-source-badge');
-            if (badge) {
-                if (state.alcala.isCustomData) {
-                    badge.innerText = 'Excel / Datos Personalizados';
-                    badge.className = 'text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold';
-                } else {
-                    badge.innerText = 'Perfil Estándar';
-                    badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold';
-                }
-            }
 
             updateAlcalaCharts();
         }
@@ -370,17 +351,6 @@
 
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
-
-            const badge = document.getElementById('ent-data-source-badge');
-            if (badge) {
-                if (state.entronque.isCustomData) {
-                    badge.innerText = 'Excel / Datos Personalizados';
-                    badge.className = 'text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold';
-                } else {
-                    badge.innerText = 'Perfil Estándar';
-                    badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold';
-                }
-            }
 
             updateEntronqueCharts();
         }
@@ -768,13 +738,6 @@
             }
 
             closeExcelModal();
-        }
-
-        function changeGlobalHorizon(val) {
-            state.horizonDays = parseInt(val, 10) || 1;
-            if (state.currentTab === 'alcala') updateAlcalaUI();
-            else if (state.currentTab === 'entronque') updateEntronqueUI();
-            else if (state.currentTab === 'resumen') updateResumenUI();
         }
 
         function switchTab(tab) {
