@@ -220,6 +220,22 @@
 
             updateAlcalaCharts();
         }
+
+        function smoothFlowSeries(values, radius = 3) {
+            if (!Array.isArray(values) || values.length === 0) return [];
+            return values.map((value, index) => {
+                let weightedSum = 0;
+                let weightTotal = 0;
+                for (let offset = -radius; offset <= radius; offset++) {
+                    const sourceIndex = Math.min(values.length - 1, Math.max(0, index + offset));
+                    const weight = radius + 1 - Math.abs(offset);
+                    weightedSum += values[sourceIndex] * weight;
+                    weightTotal += weight;
+                }
+                return Number((weightedSum / weightTotal).toFixed(2));
+            });
+        }
+
         function updateAlcalaCharts() {
             const sim = state.alcala.simulation;
             if (!sim || sim.length === 0) return;
@@ -253,12 +269,11 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: sim.map(s => Number(s.entrada.toFixed(2))) },
-                    { name: 'Salida 1', data: sim.map(s => Number(s.salida1.toFixed(2))) },
-                    { name: 'Burguillos', data: sim.map(s => Number(s.burguillos.toFixed(2))) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 3) },
+                    { name: 'Salida (Salida 1 + Burguillos)', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 3) }
                 ],
-                colors: ['#10b981', '#0284c7', '#f59e0b'],
-                stroke: { curve: 'smooth', width: [3, 3, 2.5] },
+                colors: ['#10b981', '#e11d48'],
+                stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
                 markers: { size: 0, hover: { size: 5 } },
                 dataLabels: { enabled: false },
                 xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
@@ -356,11 +371,11 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: sim.map(s => Number(s.entrada.toFixed(2))) },
-                    { name: 'Salida 1', data: sim.map(s => Number(s.salida1.toFixed(2))) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 3) },
+                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 3) }
                 ],
-                colors: ['#10b981', '#6366f1'],
-                stroke: { curve: 'smooth', width: [3, 3] },
+                colors: ['#10b981', '#e11d48'],
+                stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
                 markers: { size: 0, hover: { size: 5 } },
                 dataLabels: { enabled: false },
                 xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
