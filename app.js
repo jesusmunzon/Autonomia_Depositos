@@ -221,19 +221,20 @@
             updateAlcalaCharts();
         }
 
-        function smoothFlowSeries(values, radius = 3) {
+        function smoothFlowSeries(values, radius = 6) {
             if (!Array.isArray(values) || values.length === 0) return [];
-            return values.map((value, index) => {
+            const smoothPass = input => input.map((value, index) => {
                 let weightedSum = 0;
                 let weightTotal = 0;
                 for (let offset = -radius; offset <= radius; offset++) {
-                    const sourceIndex = Math.min(values.length - 1, Math.max(0, index + offset));
+                    const sourceIndex = Math.min(input.length - 1, Math.max(0, index + offset));
                     const weight = radius + 1 - Math.abs(offset);
-                    weightedSum += values[sourceIndex] * weight;
+                    weightedSum += input[sourceIndex] * weight;
                     weightTotal += weight;
                 }
-                return Number((weightedSum / weightTotal).toFixed(2));
+                return weightedSum / weightTotal;
             });
+            return smoothPass(smoothPass(values)).map(value => Number(value.toFixed(2)));
         }
 
         function updateAlcalaCharts() {
@@ -269,8 +270,8 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 3) },
-                    { name: 'Salida (Salida 1 + Burguillos)', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 3) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 6) },
+                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 6) }
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
@@ -371,8 +372,8 @@
             const flowOptions = {
                 chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
-                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 3) },
-                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 3) }
+                    { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 6) },
+                    { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 6) }
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
