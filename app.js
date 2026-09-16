@@ -275,11 +275,39 @@
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
-                markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
+                markers: {
+                    size: 0,
+                    strokeWidth: 2,
+                    strokeColors: '#ffffff',
+                    hover: {
+                        size: 7,
+                        sizeOffset: 3
+                    }
+                },
                 dataLabels: { enabled: false },
                 xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
-                tooltip: { shared: true, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} l/s` } },
+                tooltip: {
+                    enabled: true,
+                    shared: true,
+                    intersect: false,
+                    followCursor: true,
+                    hideEmptySeries: true,
+                    marker: {
+                        show: true
+                    },
+                    x: {
+                        show: true
+                    },
+                    y: {
+                        formatter: value => {
+                            if (value === undefined || value === null) {
+                                return '';
+                            }
+                             return `${value.toFixed(2)} l/s`;
+                        }
+                    }
+                },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
                 grid: { borderColor: '#e2e8f0' }
             };
@@ -377,11 +405,40 @@
                 ],
                 colors: ['#10b981', '#e11d48'],
                 stroke: { curve: 'smooth', width: [3, 3], lineCap: 'round' },
-                markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
+                markers: {
+                    size: 0,
+                    strokeWidth: 2,
+                    strokeColors: '#ffffff',
+                    hover: {
+                        size: 7,
+                        sizeOffset: 3
+                    }
+                },
                 dataLabels: { enabled: false },
                 xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
-                tooltip: { shared: true, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} l/s` } },
+                tooltip: {
+                    enabled: true,
+                    shared: true,
+                    intersect: false,
+                    followCursor: true,
+                    hideEmptySeries: true,
+                    marker: {
+                        show: true
+                    },
+                    x: {
+                        show: true
+                    },
+                    y: {
+                        formatter: value => {
+                            if (value === undefined || value === null) {
+                                return '';
+                            }
+
+                            return `${value.toFixed(2)} l/s`;
+                        }
+                    }
+                },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
                 grid: { borderColor: '#e2e8f0' }
             };
