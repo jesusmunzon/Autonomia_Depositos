@@ -1,16 +1,58 @@
-body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
-        .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; 
-        .apexcharts-canvas,
-        .apexcharts-inner,
-        .apexcharts-series {
-                cursor: crosshair;
-        }
-        .apexcharts-marker {
-                cursor: pointer;
-        }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid #e2e8f0;
+}
+
+.tab-active {
+    border-bottom: 3px solid #0284c7;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Cursor sobre el área interactiva de las gráficas */
+.apexcharts-canvas,
+.apexcharts-canvas svg,
+.apexcharts-inner,
+.apexcharts-graphical,
+.apexcharts-series,
+.apexcharts-series path {
+    cursor: crosshair !important;
+}
+
+/* Cursor de mano sobre los puntos activos */
+.apexcharts-marker {
+    cursor: pointer !important;
+}
+
+/* Mantener cursor normal en la leyenda */
+.apexcharts-legend,
+.apexcharts-legend-series,
+.apexcharts-legend-text,
+.apexcharts-legend-marker {
+    cursor: pointer !important;
 }
