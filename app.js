@@ -27,8 +27,8 @@
             alcala: {
                 burguillosOption: 'con',
                 useDefaultInlet: true,
-                nivelInicio: 15.50,
-                nivelMinimo: 12.00,
+                nivelInicio: 6.00,
+                nivelMinimo: 1.00,
                 caudalEntradaMedio: 44.36,
                 isCustomData: false,
                 entradaProfile: [...PATTERN_ENTRADA_ALCALA_DEFAULT],
@@ -42,8 +42,8 @@
             },
             entronque: {
                 useDefaultInlet: true,
-                nivelInicio: 18.20,
-                nivelMinimo: 14.00,
+                nivelInicio: 5.50,
+                nivelMinimo: 1.50,
                 caudalEntradaMedio: 48.50,
                 isCustomData: false,
                 entradaProfile: [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT],
