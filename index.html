@@ -15,36 +15,8 @@
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                            900: '#0c4a6e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
-        .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+    <script src="config.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
@@ -62,6 +34,17 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
+                    <div class="flex items-center bg-slate-800 text-xs px-3 py-1.5 rounded-xl border border-slate-700 text-slate-300">
+                        <i class="fa-solid fa-calendar-days text-brand-400 mr-2"></i>
+                        <span class="mr-2 font-medium hidden sm:inline">Simulación:</span>
+                        <select id="select-horizon-global" onchange="changeGlobalHorizon(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
+                            <option value="1">1 Día (24 h)</option>
+                            <option value="2">2 Días (48 h)</option>
+                            <option value="3">3 Días (72 h)</option>
+                            <option value="5">5 Días (120 h)</option>
+                            <option value="7" selected>7 Días (168 h)</option>
+                        </select>
+                    </div>
                     <button onclick="exportSummaryPDF()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs px-3 py-2 rounded-lg transition-all flex items-center font-medium shadow-sm">
                         <i class="fa-solid fa-file-export mr-1.5"></i> Exportar
                     </button>
@@ -168,100 +151,54 @@
                 </div>
             </div>
 
-            <!-- Highlighted KPI Summary Cards - Alcalá del Río -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Metric 1: Nivel Final -->
-                <div class="glass-card bg-gradient-to-br from-white via-sky-50/50 to-blue-50/80 p-4.5 rounded-2xl border border-sky-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-sky-500/10 rounded-full blur-xl group-hover:bg-sky-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center">
-                            <i class="fa-solid fa-water-waves mr-1.5 text-sky-500"></i> Nivel Final
-                        </span>
-                        <span id="alc-kpi-diff-nivel" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
-                            +0.00 m
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="alc-kpi-nivel-final" class="text-2xl font-black text-slate-800 tracking-tight">15.50 m</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Cota al cierre del horizonte</p>
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium" id="alc-label-nivel-final">Nivel Final</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="alc-kpi-nivel-final">0.00 m</h3>
+                    <span class="text-xs font-semibold" id="alc-kpi-diff-nivel">+0.00 m vs inicio</span>
                 </div>
-
-                <!-- Metric 2: Nivel Mínimo -->
-                <div class="glass-card bg-gradient-to-br from-white via-amber-50/40 to-rose-50/60 p-4.5 rounded-2xl border border-amber-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center">
-                            <i class="fa-solid fa-chart-line-down mr-1.5 text-amber-500"></i> Nivel Mínimo
-                        </span>
-                        <span id="alc-kpi-status-min" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                            Seguro
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="alc-kpi-nivel-min" class="text-2xl font-black text-slate-800 tracking-tight">12.00 m</h3>
-                    </div>
-                    <p id="alc-kpi-min-subtext" class="text-[11px] text-slate-500 mt-1 font-medium">Margen aceptable s/ mínimo</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Nivel Mínimo Alcanzado</p>
+                    <h3 class="text-2xl font-bold mt-1" id="alc-kpi-nivel-min">0.00 m</h3>
+                    <span class="text-xs font-semibold text-slate-500" id="alc-kpi-status-min">Seguro</span>
                 </div>
-
-                <!-- Metric 3: Caudal Entrada -->
-                <div class="glass-card bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/80 p-4.5 rounded-2xl border border-emerald-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center">
-                            <i class="fa-solid fa-arrow-down-to-bracket mr-1.5 text-emerald-500"></i> Caudal Entrada
-                        </span>
-                        <span id="alc-kpi-entrada-mode" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                            Perfil Excel
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="alc-kpi-entrada-avg" class="text-2xl font-black text-slate-800 tracking-tight">44.36 l/s</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Aportación media al embalse</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Caudal Entrante Medio</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="alc-kpi-entrada-avg">0 l/s</h3>
+                    <span class="text-xs text-slate-400" id="alc-kpi-horizon-text">Promedio simulado</span>
                 </div>
-
-                <!-- Metric 4: Caudal Salida Total -->
-                <div class="glass-card bg-gradient-to-br from-white via-indigo-50/50 to-violet-50/80 p-4.5 rounded-2xl border border-indigo-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center">
-                            <i class="fa-solid fa-arrow-up-from-bracket mr-1.5 text-indigo-500"></i> Caudal Salida
-                        </span>
-                        <span id="alc-kpi-salida-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
-                            TOTAL
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="alc-kpi-salida-avg" class="text-2xl font-black text-slate-800 tracking-tight">43.90 l/s</h3>
-                    </div>
-                    <p id="alc-kpi-salida-subtext" class="text-[11px] text-slate-500 mt-1 font-medium">Suma de Q de las salidas</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Caudal Salida Total (Salida 1 + Burguillos)</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="alc-kpi-salida-total">0 l/s</h3>
+                    <span class="text-xs text-slate-400" id="alc-kpi-burguillos-status">Burguillos: ~14 l/s</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Chart 1: Nivel Alcalá -->
+            <!-- Two Main Charts Section -->
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Chart 1: Nivel -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-chart-line text-brand-500 mr-2"></i> Evolución de Nivel de Agua (Alcalá del Río)
+                            <i class="fa-solid fa-chart-line text-brand-500 mr-2"></i> Evolución de Nivel de Agua (Multidía)
                         </h3>
-                        <span class="text-xs bg-brand-50 text-brand-700 px-2.5 py-1 rounded-md font-semibold">m (Metros)</span>
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-semibold">m (Metros)</span>
                     </div>
-                    <div class="h-[380px] relative w-full">
+                    <div class="h-[450px] relative w-full">
                         <canvas id="chart-alcala-nivel"></canvas>
                     </div>
                 </div>
 
-                <!-- Chart 2: Caudales Alcalá -->
+                <!-- Chart 2: Caudales -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-chart-area text-emerald-500 mr-2"></i> Balance de Caudales (Alcalá del Río)
+                            <i class="fa-solid fa-chart-line text-emerald-500 mr-2"></i> Balance de Caudales (Entrada vs Salida Total)
                         </h3>
-                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros/seg)</span>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
-                    <div class="h-[380px] relative w-full">
+                    <div class="h-[450px] relative w-full">
                         <canvas id="chart-alcala-caudales"></canvas>
                     </div>
                 </div>
@@ -280,14 +217,12 @@
                             </h2>
                             <span id="ent-data-source-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Perfil Estándar</span>
                         </div>
-                        <p class="text-xs text-slate-500">Factor volumétrico: <span class="font-semibold text-slate-700">1798</span> | Configura o carga tus datos de Excel</p>
+                        <p class="text-xs text-slate-500">Factor volumétrico: <span class="font-semibold text-slate-700">1798</span> | Sin derivación Burguillos</p>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <button onclick="openExcelModal('entronque')" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center">
-                            <i class="fa-solid fa-file-excel mr-1.5 text-sm"></i> Cargar / Pegar Excel
-                        </button>
-                    </div>
+                    <button onclick="openExcelModal('entronque')" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center self-start md:self-auto">
+                        <i class="fa-solid fa-file-excel mr-1.5 text-sm"></i> Cargar / Pegar Excel
+                    </button>
                 </div>
 
                 <!-- Input Controls Grid -->
@@ -336,80 +271,33 @@
                 </div>
             </div>
 
-            <!-- Highlighted KPI Summary Cards - Entronque -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Metric 1: Nivel Final -->
-                <div class="glass-card bg-gradient-to-br from-white via-indigo-50/40 to-slate-50/80 p-4.5 rounded-2xl border border-indigo-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center">
-                            <i class="fa-solid fa-water-waves mr-1.5 text-indigo-500"></i> Nivel Final
-                        </span>
-                        <span id="ent-kpi-diff-nivel" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
-                            +0.00 m
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="ent-kpi-nivel-final" class="text-2xl font-black text-slate-800 tracking-tight">18.20 m</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Cota al cierre de simulación</p>
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Nivel Final</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="ent-kpi-nivel-final">0.00 m</h3>
+                    <span class="text-xs font-semibold" id="ent-kpi-diff-nivel">+0.00 m vs inicio</span>
                 </div>
-
-                <!-- Metric 2: Nivel Mínimo -->
-                <div class="glass-card bg-gradient-to-br from-white via-amber-50/40 to-rose-50/60 p-4.5 rounded-2xl border border-amber-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center">
-                            <i class="fa-solid fa-chart-line-down mr-1.5 text-amber-500"></i> Nivel Mínimo
-                        </span>
-                        <span id="ent-kpi-status-min" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                            Seguro
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="ent-kpi-nivel-min" class="text-2xl font-black text-slate-800 tracking-tight">14.00 m</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Nivel mínimo registrado</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Nivel Mínimo Alcanzado</p>
+                    <h3 class="text-2xl font-bold mt-1" id="ent-kpi-nivel-min">0.00 m</h3>
+                    <span class="text-xs font-semibold text-slate-500" id="ent-kpi-status-min">Seguro</span>
                 </div>
-
-                <!-- Metric 3: Caudal Entrada -->
-                <div class="glass-card bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/80 p-4.5 rounded-2xl border border-emerald-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center">
-                            <i class="fa-solid fa-arrow-down-to-bracket mr-1.5 text-emerald-500"></i> Caudal Entrada
-                        </span>
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                            Aportación
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="ent-kpi-entrada-avg" class="text-2xl font-black text-slate-800 tracking-tight">48.50 l/s</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Aportación media al depósito</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Caudal Entrante Medio</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="ent-kpi-entrada-avg">0 l/s</h3>
+                    <span class="text-xs text-slate-400">Promedio simulado</span>
                 </div>
-
-                <!-- Metric 4: Caudal Salida 1 -->
-                <div class="glass-card bg-gradient-to-br from-white via-purple-50/50 to-indigo-50/80 p-4.5 rounded-2xl border border-purple-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center">
-                            <i class="fa-solid fa-arrow-up-from-bracket mr-1.5 text-purple-500"></i> Caudal Salida 1
-                        </span>
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
-                            Demanda
-                        </span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-1">
-                        <h3 id="ent-kpi-salida-avg" class="text-2xl font-black text-slate-800 tracking-tight">30.00 l/s</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Demanda directa atendida</p>
+                <div class="glass-card p-4 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-500 font-medium">Caudal Salida 1 Medio</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="ent-kpi-salida-avg">0 l/s</h3>
+                    <span class="text-xs text-slate-400">Demanda atendida</span>
                 </div>
             </div>
 
-            <!-- Two Main Charts Section - Entronque -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Chart 1: Nivel Entronque -->
+            <!-- Two Main Charts Section -->
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Chart 1: Nivel -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
@@ -417,20 +305,20 @@
                         </h3>
                         <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md font-semibold">m (Metros)</span>
                     </div>
-                    <div class="h-[380px] relative w-full">
+                    <div class="h-[450px] relative w-full">
                         <canvas id="chart-entronque-nivel"></canvas>
                     </div>
                 </div>
 
-                <!-- Chart 2: Caudales Entronque -->
+                <!-- Chart 2: Caudales -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-chart-area text-emerald-500 mr-2"></i> Balance de Caudales (Entronque)
+                            <i class="fa-solid fa-chart-column text-emerald-500 mr-2"></i> Balance de Caudales (Entronque)
                         </h3>
-                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros/seg)</span>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
-                    <div class="h-[380px] relative w-full">
+                    <div class="h-[450px] relative w-full">
                         <canvas id="chart-entronque-caudales"></canvas>
                     </div>
                 </div>
@@ -439,108 +327,112 @@
 
         <!-- ================= TAB 3: RESUMEN EJECUTIVO ================= -->
         <section id="tab-resumen" class="space-y-6 hidden">
-            <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <h2 class="text-xl font-bold flex items-center">
-                        <i class="fa-solid fa-chart-pie text-brand-500 mr-2"></i> Resumen Ejecutivo de Operación Red
-                    </h2>
-                    <p class="text-xs text-slate-400">Estado consolidado de las dos subsistemas hidráulicos principales</p>
-                </div>
-                <div class="bg-slate-800/80 border border-slate-700 px-4 py-2 rounded-xl flex items-center space-x-3">
-                    <span class="text-xs text-slate-300">Diagnóstico Global:</span>
-                    <span id="resumen-global-status" class="text-sm font-bold text-emerald-400">Sistema Estable</span>
+            <!-- Executive Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 text-white p-6 rounded-2xl shadow-md border border-slate-700">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs uppercase font-bold tracking-wider text-brand-400 bg-brand-950/60 px-3 py-1 rounded-full border border-brand-800">
+                            Informe de Evaluación Operativa
+                        </span>
+                        <h2 class="text-2xl font-bold mt-2">Resumen Comparativo de Sistema Hidráulico</h2>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                            Consolidado general de balances de cota y caudales simulados para los depósitos de Alcalá del Río y Entronque con datos personalizados.
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-3 self-start md:self-auto">
+                        <div class="bg-slate-800/80 backdrop-blur border border-slate-700 p-3 rounded-xl text-center">
+                            <span class="text-xs text-slate-400 block">Estado General</span>
+                            <span id="resumen-global-status" class="text-sm font-bold text-emerald-400">Estable</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Summary Table / Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Sub-system 1: Alcalá del Río -->
-                <div class="glass-card p-5 rounded-2xl border border-slate-200 space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <!-- Comparison Metric Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Alcalá Summary Card -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-faucet-drip text-brand-500 mr-2"></i> Alcalá del Río
+                            <i class="fa-solid fa-water-waves text-brand-500 mr-2"></i> Alcalá del Río
                         </h3>
-                        <span id="res-badge-alc" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">ÓPTIMO</span>
+                        <span id="res-badge-alc" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">OK</span>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Configuración</span>
-                            <span id="res-alc-burguillos" class="font-semibold text-slate-700">Con Burguillos (~45 l/s)</span>
+                    <div class="mt-4 space-y-3 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Configuración Burguillos:</span>
+                            <span id="res-alc-burguillos" class="font-semibold text-slate-800">Con Burguillos (~45 l/s)</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Cota Inicio / Fin</span>
-                            <span id="res-alc-niveles" class="font-semibold text-slate-700">15.50m / 15.50m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Nivel Inicial / Final:</span>
+                            <span id="res-alc-niveles" class="font-semibold text-slate-800">15.50m / 15.65m</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Nivel Mínimo Registrado</span>
-                            <span id="res-alc-min" class="font-semibold text-slate-700">12.00 m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Mínimo Registrado:</span>
+                            <span id="res-alc-min" class="font-bold text-slate-800">14.20 m</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Margen de Seguridad</span>
-                            <span id="res-alc-margen" class="font-bold text-emerald-600">+3.50 m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Margen s/ Nivel Mínimo:</span>
+                            <span id="res-alc-margen" class="font-bold text-emerald-600">+2.20 m</span>
                         </div>
-                    </div>
-
-                    <div class="bg-brand-50/50 p-3 rounded-xl border border-brand-100 flex items-center justify-between text-xs">
-                        <span class="text-brand-900 font-medium">Volumen Neto Acumulado:</span>
-                        <span id="res-alc-volumen" class="font-bold text-brand-700">+0 m³</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Volumen Neto Inyectado:</span>
+                            <span id="res-alc-volumen" class="font-semibold text-slate-800">+4,320 m³</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sub-system 2: Entronque -->
-                <div class="glass-card p-5 rounded-2xl border border-slate-200 space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <!-- Entronque Summary Card -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="font-bold text-slate-800 flex items-center">
                             <i class="fa-solid fa-diagram-project text-indigo-500 mr-2"></i> Entronque
                         </h3>
-                        <span id="res-badge-ent" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">ÓPTIMO</span>
+                        <span id="res-badge-ent" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">OK</span>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Factor Volumétrico</span>
-                            <span class="font-semibold text-slate-700">1798</span>
+                    <div class="mt-4 space-y-3 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Configuración Burguillos:</span>
+                            <span class="font-semibold text-slate-400">N/A</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Cota Inicio / Fin</span>
-                            <span id="res-ent-niveles" class="font-semibold text-slate-700">18.20m / 18.20m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Nivel Inicial / Final:</span>
+                            <span id="res-ent-niveles" class="font-semibold text-slate-800">18.20m / 18.10m</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Nivel Mínimo Registrado</span>
-                            <span id="res-ent-min" class="font-semibold text-slate-700">14.00 m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Mínimo Registrado:</span>
+                            <span id="res-ent-min" class="font-bold text-slate-800">17.10 m</span>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-lg">
-                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Margen de Seguridad</span>
-                            <span id="res-ent-margen" class="font-bold text-emerald-600">+4.20 m</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Margen s/ Nivel Mínimo:</span>
+                            <span id="res-ent-margen" class="font-bold text-emerald-600">+3.10 m</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Volumen Neto Inyectado:</span>
+                            <span id="res-ent-volumen" class="font-semibold text-slate-800">-1,200 m³</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 flex items-center justify-between text-xs">
-                        <span class="text-indigo-900 font-medium">Volumen Neto Acumulado:</span>
-                        <span id="res-ent-volumen" class="font-bold text-indigo-700">+0 m³</span>
+                <!-- Strategic Recommendations Card -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 flex items-center pb-3 border-b border-slate-200">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i> Diagnóstico Operativo
+                    </h3>
+                    <div class="mt-4 space-y-3 text-xs" id="resumen-recomendaciones">
+                        <!-- Filled dynamically -->
                     </div>
                 </div>
             </div>
 
-            <!-- Operational Recommendations -->
-            <div class="glass-card p-5 rounded-2xl border border-slate-200">
-                <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3 flex items-center">
-                    <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i> Recomendaciones Operativas
-                </h4>
-                <div id="resumen-recomendaciones" class="space-y-2 text-xs">
-                    <!-- Dynamic recommendation alerts inserted by JS -->
-                </div>
-            </div>
-
-            <!-- Two Main Charts Section - Executive Summary -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Joint Charts Section -->
+            <div class="grid grid-cols-1 gap-6">
                 <!-- Chart Comparativa Niveles -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center">
                         <i class="fa-solid fa-code-compare text-slate-600 mr-2"></i> Comparativa de Comportamiento de Niveles
                     </h3>
-                    <div class="h-[380px] relative w-full">
+                    <div class="h-[420px] relative w-full">
                         <canvas id="chart-resumen-niveles"></canvas>
                     </div>
                 </div>
@@ -646,928 +538,6 @@
         <p>© 2026 Plataforma de Simulación Hidráulica | Cálculo en tiempo real con factores de embalse 1329 y 1798</p>
     </footer>
 
-    <script>
-        // Real demand curves over 24 hours (l/s) matching Excel average magnitudes
-        const PATTERN_SALIDA_1_ALCALA = [18.5, 17.5, 16.0, 15.5, 15.0, 16.5, 21.0, 26.0, 31.0, 33.5, 32.5, 31.5, 30.5, 29.8, 29.5, 30.2, 31.8, 33.2, 34.5, 32.8, 29.8, 26.2, 22.5, 19.5];
-        const PATTERN_BURGUILLOS = [12.0, 11.5, 10.5, 10.5, 10.5, 11.5, 12.8, 14.5, 15.8, 16.8, 16.5, 15.2, 14.6, 14.0, 13.8, 14.4, 15.2, 16.1, 16.8, 15.8, 14.6, 13.7, 12.8, 12.2];
-        const PATTERN_SALIDA_1_ENTRONQUE = [22.0, 20.5, 19.0, 18.5, 18.0, 19.5, 24.0, 29.0, 34.0, 36.5, 35.5, 34.5, 33.5, 32.8, 32.5, 33.2, 34.8, 36.2, 37.5, 35.8, 32.8, 29.2, 25.5, 22.5];
-        const PATTERN_ENTRADA_ALCALA_DEFAULT = [40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 42.0, 46.0, 49.0, 49.0, 49.0, 46.0, 43.0, 43.0, 43.0, 45.0, 47.0, 49.0, 49.0, 46.0, 43.0, 43.0, 40.0, 40.0];
-        const PATTERN_ENTRADA_ENTRONQUE_DEFAULT = [45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 47.0, 51.0, 54.0, 54.0, 54.0, 51.0, 48.0, 48.0, 48.0, 50.0, 52.0, 54.0, 54.0, 51.0, 48.0, 48.0, 45.0, 45.0];
-
-        // Global Chart References
-        let chartAlcNivel = null;
-        let chartAlcCaudales = null;
-        let chartEntNivel = null;
-        let chartEntCaudales = null;
-        let chartResNiveles = null;
-        let chartResDistribucion = null;
-
-        // Modal State
-        let activeModalTarget = 'alcala';
-        let tempHourlyProfile = {
-            entrada: [],
-            salida1: [],
-            burguillos: []
-        };
-
-        // Global State
-        const state = {
-            currentTab: 'alcala',
-            alcala: {
-                burguillosOption: 'con',
-                useDefaultInlet: true,
-                nivelInicio: 15.50,
-                nivelMinimo: 12.00,
-                caudalEntradaMedio: 44.36,
-                isCustomData: false,
-                entradaProfile: [...PATTERN_ENTRADA_ALCALA_DEFAULT],
-                salida1Profile: [...PATTERN_SALIDA_1_ALCALA],
-                burguillosProfile: [...PATTERN_BURGUILLOS],
-                factor: 1329,
-                visibleHours: 168,
-                breachHour: -1,
-                simulation: []
-            },
-            entronque: {
-                useDefaultInlet: true,
-                nivelInicio: 18.20,
-                nivelMinimo: 14.00,
-                caudalEntradaMedio: 48.50,
-                isCustomData: false,
-                entradaProfile: [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT],
-                salida1Profile: [...PATTERN_SALIDA_1_ENTRONQUE],
-                factor: 1798,
-                visibleHours: 168,
-                breachHour: -1,
-                simulation: []
-            }
-        };
-
-        function getTimeLabels(days) {
-            const labels = [];
-            for (let d = 1; d <= days; d++) {
-                for (let h = 0; h < 24; h++) {
-                    const timeStr = `${String(h).padStart(2, '0')}:00`;
-                    labels.push(days === 1 ? timeStr : `Día ${d} ${timeStr}`);
-                }
-            }
-            return labels;
-        }
-
-        // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
-        function toggleInletMode(target) {
-            if (target === 'alcala') {
-                const isChecked = document.getElementById('alc-check-default-entrada').checked;
-                state.alcala.useDefaultInlet = isChecked;
-                const inputEl = document.getElementById('alc-caudal-entrada');
-
-                if (isChecked) {
-                    inputEl.disabled = true;
-                    inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-brand-500 focus:outline-none';
-                    const avg = (state.alcala.entradaProfile.reduce((a,b)=>a+b, 0) / 24).toFixed(2);
-                    inputEl.value = avg;
-                } else {
-                    inputEl.disabled = false;
-                    inputEl.className = 'w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none';
-                    inputEl.focus();
-                }
-                updateAlcalaSimulation();
-            } else {
-                const isChecked = document.getElementById('ent-check-default-entrada').checked;
-                state.entronque.useDefaultInlet = isChecked;
-                const inputEl = document.getElementById('ent-caudal-entrada');
-
-                if (isChecked) {
-                    inputEl.disabled = true;
-                    inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-indigo-500 focus:outline-none';
-                    const avg = (state.entronque.entradaProfile.reduce((a,b)=>a+b, 0) / 24).toFixed(2);
-                    inputEl.value = avg;
-                } else {
-                    inputEl.disabled = false;
-                    inputEl.className = 'w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none';
-                    inputEl.focus();
-                }
-                updateEntronqueSimulation();
-            }
-        }
-
-        // Hydraulic calculation engine for Alcalá del Río
-        function calculateAlcala() {
-            const data = [];
-            let currentNivel = parseFloat(state.alcala.nivelInicio) || 0;
-            const factor = state.alcala.factor;
-            const isBurguillosActive = state.alcala.burguillosOption === 'con';
-            const useExcelProfile = state.alcala.useDefaultInlet;
-            const fixedInletVal = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
-            const minNivel = parseFloat(state.alcala.nivelMinimo) || 0;
-            const maxHours = 168; // 7 days full simulation window
-            const labels = getTimeLabels(7);
-
-            let breachHour = -1;
-
-            for (let i = 0; i < maxHours; i++) {
-                const hourOfDay = i % 24;
-                const dayNum = Math.floor(i / 24) + 1;
-
-                const entrada = useExcelProfile ? (state.alcala.entradaProfile[hourOfDay] ?? 44.36) : fixedInletVal;
-                const salida1 = state.alcala.salida1Profile[hourOfDay] ?? 29.9;
-                const burguillos = isBurguillosActive ? (state.alcala.burguillosProfile[hourOfDay] ?? 0) : 0;
-                const salidaTotal = salida1 + burguillos;
-                const netFlow = entrada - salidaTotal;
-
-                const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
-
-                if (breachHour === -1 && nextNivel < minNivel) {
-                    breachHour = i + 1; // 1-indexed hour of breach
-                }
-
-                data.push({
-                    hora: labels[i],
-                    dayNum,
-                    hourOfDay,
-                    entrada,
-                    salida1,
-                    burguillos,
-                    salidaTotal,
-                    netFlow,
-                    nivel: nextNivel
-                });
-
-                currentNivel = nextNivel;
-            }
-
-            // Dynamic rule criteria for chart display length
-            let visibleHours = maxHours;
-            if (breachHour !== -1) {
-                visibleHours = Math.min(maxHours, Math.max(24, breachHour + 3));
-            }
-
-            state.alcala.visibleHours = visibleHours;
-            state.alcala.breachHour = breachHour;
-            state.alcala.simulation = data.slice(0, visibleHours);
-        }
-
-        // Hydraulic calculation engine for Entronque
-        function calculateEntronque() {
-            const data = [];
-            let currentNivel = parseFloat(state.entronque.nivelInicio) || 0;
-            const factor = state.entronque.factor;
-            const useExcelProfile = state.entronque.useDefaultInlet;
-            const fixedInletVal = parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
-            const minNivel = parseFloat(state.entronque.nivelMinimo) || 0;
-            const maxHours = 168;
-            const labels = getTimeLabels(7);
-
-            let breachHour = -1;
-
-            for (let i = 0; i < maxHours; i++) {
-                const hourOfDay = i % 24;
-                const dayNum = Math.floor(i / 24) + 1;
-
-                const entrada = useExcelProfile ? (state.entronque.entradaProfile[hourOfDay] ?? 48.5) : fixedInletVal;
-                const salida1 = state.entronque.salida1Profile[hourOfDay] ?? 30.0;
-                const netFlow = entrada - salida1;
-
-                const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
-
-                if (breachHour === -1 && nextNivel < minNivel) {
-                    breachHour = i + 1;
-                }
-
-                data.push({
-                    hora: labels[i],
-                    dayNum,
-                    hourOfDay,
-                    entrada,
-                    salida1,
-                    burguillos: 0,
-                    salidaTotal: salida1,
-                    netFlow,
-                    nivel: nextNivel
-                });
-
-                currentNivel = nextNivel;
-            }
-
-            // Dynamic rule criteria for chart display length
-            let visibleHours = maxHours;
-            if (breachHour !== -1) {
-                visibleHours = Math.min(maxHours, Math.max(24, breachHour + 3));
-            }
-
-            state.entronque.visibleHours = visibleHours;
-            state.entronque.breachHour = breachHour;
-            state.entronque.simulation = data.slice(0, visibleHours);
-        }
-
-        function updateAlcalaUI() {
-            calculateAlcala();
-            const sim = state.alcala.simulation;
-            const minNivelReq = parseFloat(state.alcala.nivelMinimo);
-
-            if (sim && sim.length > 0) {
-                const nivelFinal = sim[sim.length - 1].nivel;
-                let minIndex = 0;
-                let nivelMinAlcanzado = sim[0].nivel;
-                for (let i = 1; i < sim.length; i++) {
-                    if (sim[i].nivel < nivelMinAlcanzado) {
-                        nivelMinAlcanzado = sim[i].nivel;
-                        minIndex = i;
-                    }
-                }
-
-                const entradaAvg = (sim.reduce((acc, s) => acc + s.entrada, 0) / sim.length).toFixed(2);
-                const salidaTotalAvg = (sim.reduce((acc, s) => acc + s.salidaTotal, 0) / sim.length).toFixed(2);
-                const salida1Avg = (sim.reduce((acc, s) => acc + s.salida1, 0) / sim.length).toFixed(2);
-                const burguillosAvg = (sim.reduce((acc, s) => acc + s.burguillos, 0) / sim.length).toFixed(2);
-                const diffNivel = nivelFinal - state.alcala.nivelInicio;
-
-                // KPI 1: Nivel Final
-                const kpiNivelFinal = document.getElementById('alc-kpi-nivel-final');
-                if (kpiNivelFinal) kpiNivelFinal.innerText = `${nivelFinal.toFixed(2)} m`;
-
-                const kpiDiff = document.getElementById('alc-kpi-diff-nivel');
-                if (kpiDiff) {
-                    kpiDiff.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m`;
-                    kpiDiff.className = `text-[11px] font-bold px-2 py-0.5 rounded-full ${diffNivel >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-                }
-
-                // KPI 2: Nivel Mínimo
-                const kpiMin = document.getElementById('alc-kpi-nivel-min');
-                if (kpiMin) {
-                    kpiMin.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-                    kpiMin.className = `text-2xl font-black tracking-tight ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-                }
-
-                const kpiStatusMin = document.getElementById('alc-kpi-status-min');
-                const kpiMinSubtext = document.getElementById('alc-kpi-min-subtext');
-                if (kpiStatusMin) {
-                    if (nivelMinAlcanzado < minNivelReq) {
-                        const minTimeLabel = sim[minIndex].hora;
-                        kpiStatusMin.innerText = `¡ALERTA! (${minTimeLabel})`;
-                        kpiStatusMin.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 animate-pulse';
-                        if (kpiMinSubtext) kpiMinSubtext.innerText = `Superante cota mínima (${minNivelReq.toFixed(2)}m)`;
-                    } else {
-                        const margen = nivelMinAlcanzado - minNivelReq;
-                        kpiStatusMin.innerText = `+${margen.toFixed(2)}m sobre mín.`;
-                        kpiStatusMin.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-                        if (kpiMinSubtext) kpiMinSubtext.innerText = `Nivel seguro (Umbral: ${minNivelReq.toFixed(2)}m)`;
-                    }
-                }
-
-                // KPI 3: Caudal Entrada
-                const kpiEntradaAvg = document.getElementById('alc-kpi-entrada-avg');
-                if (kpiEntradaAvg) kpiEntradaAvg.innerText = `${entradaAvg} l/s`;
-
-                const kpiEntradaMode = document.getElementById('alc-kpi-entrada-mode');
-                if (kpiEntradaMode) {
-                    kpiEntradaMode.innerText = state.alcala.useDefaultInlet ? 'Perfil Excel' : 'Valor Fijo';
-                }
-
-                // KPI 4: Caudal Salida Total
-                const kpiSalidaAvg = document.getElementById('alc-kpi-salida-avg');
-                if (kpiSalidaAvg) kpiSalidaAvg.innerText = `${salidaTotalAvg} l/s`;
-
-                const kpiSalidaSubtext = document.getElementById('alc-kpi-salida-subtext');
-                if (kpiSalidaSubtext) {
-                    kpiSalidaSubtext.innerText = `Suma de Q de las salidas`;
-                }
-            }
-
-            // Update badge for data source
-            const badge = document.getElementById('alc-data-source-badge');
-            if (badge) {
-                if (state.alcala.isCustomData) {
-                    badge.innerText = 'Excel / Datos Personalizados';
-                    badge.className = 'text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold';
-                } else {
-                    badge.innerText = 'Perfil Estándar';
-                    badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold';
-                }
-            }
-
-            updateAlcalaCharts();
-        }
-
-        function updateAlcalaCharts() {
-            const sim = state.alcala.simulation;
-            if (!sim || sim.length === 0) return;
-
-            const minNivel = parseFloat(state.alcala.nivelMinimo);
-            const timeLabels = sim.map(s => s.hora);
-
-            // Chart 1: Nivel Alcalá
-            if (!chartAlcNivel) {
-                const ctx = document.getElementById('chart-alcala-nivel').getContext('2d');
-                chartAlcNivel = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Nivel Simulado (m)',
-                                data: sim.map(s => s.nivel),
-                                borderColor: '#0284c7',
-                                backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Nivel Mínimo (Límite)',
-                                data: Array(sim.length).fill(minNivel),
-                                borderColor: '#ef4444',
-                                borderDash: [5, 5],
-                                borderWidth: 2,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartAlcNivel.data.labels = timeLabels;
-                chartAlcNivel.data.datasets[0].data = sim.map(s => s.nivel);
-                chartAlcNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartAlcNivel.update();
-            }
-
-            // Chart 2: Caudales Alcalá
-            if (!chartAlcCaudales) {
-                const ctx = document.getElementById('chart-alcala-caudales').getContext('2d');
-                chartAlcCaudales = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Entrada (l/s)',
-                                data: sim.map(s => s.entrada),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Salida 1 (l/s)',
-                                data: sim.map(s => s.salida1),
-                                borderColor: '#0284c7',
-                                backgroundColor: 'rgba(2, 132, 199, 0.08)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Burguillos (l/s)',
-                                data: sim.map(s => s.burguillos),
-                                borderColor: '#f59e0b',
-                                backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartAlcCaudales.data.labels = timeLabels;
-                chartAlcCaudales.data.datasets[0].data = sim.map(s => s.entrada);
-                chartAlcCaudales.data.datasets[1].data = sim.map(s => s.salida1);
-                chartAlcCaudales.data.datasets[2].data = sim.map(s => s.burguillos);
-                chartAlcCaudales.update();
-            }
-        }
-
-        function updateEntronqueUI() {
-            calculateEntronque();
-            const sim = state.entronque.simulation;
-            const minNivelReq = parseFloat(state.entronque.nivelMinimo);
-
-            if (sim && sim.length > 0) {
-                const nivelFinal = sim[sim.length - 1].nivel;
-                let minIndex = 0;
-                let nivelMinAlcanzado = sim[0].nivel;
-                for (let i = 1; i < sim.length; i++) {
-                    if (sim[i].nivel < nivelMinAlcanzado) {
-                        nivelMinAlcanzado = sim[i].nivel;
-                        minIndex = i;
-                    }
-                }
-
-                const entradaAvg = (sim.reduce((acc, s) => acc + s.entrada, 0) / sim.length).toFixed(2);
-                const salidaAvg = (sim.reduce((acc, s) => acc + s.salida1, 0) / sim.length).toFixed(2);
-                const diffNivel = nivelFinal - state.entronque.nivelInicio;
-
-                const kpiFinal = document.getElementById('ent-kpi-nivel-final');
-                if (kpiFinal) kpiFinal.innerText = `${nivelFinal.toFixed(2)} m`;
-
-                const diffEl = document.getElementById('ent-kpi-diff-nivel');
-                if (diffEl) {
-                    diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m`;
-                    diffEl.className = `text-[11px] font-bold px-2 py-0.5 rounded-full ${diffNivel >= 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-rose-100 text-rose-800'}`;
-                }
-
-                const minEl = document.getElementById('ent-kpi-nivel-min');
-                if (minEl) {
-                    minEl.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-                    minEl.className = `text-2xl font-black tracking-tight ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-                }
-
-                const statusMinEl = document.getElementById('ent-kpi-status-min');
-                if (statusMinEl) {
-                    if (nivelMinAlcanzado < minNivelReq) {
-                        const minTimeLabel = sim[minIndex].hora;
-                        statusMinEl.innerText = `¡ALERTA! (${minTimeLabel})`;
-                        statusMinEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 animate-pulse';
-                    } else {
-                        const margen = nivelMinAlcanzado - minNivelReq;
-                        statusMinEl.innerText = `+${margen.toFixed(2)}m sobre mín.`;
-                        statusMinEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-                    }
-                }
-
-                const entAvgEl = document.getElementById('ent-kpi-entrada-avg');
-                if (entAvgEl) entAvgEl.innerText = `${entradaAvg} l/s`;
-
-                const salAvgEl = document.getElementById('ent-kpi-salida-avg');
-                if (salAvgEl) salAvgEl.innerText = `${salidaAvg} l/s`;
-            }
-
-            const badge = document.getElementById('ent-data-source-badge');
-            if (badge) {
-                if (state.entronque.isCustomData) {
-                    badge.innerText = 'Excel / Datos Personalizados';
-                    badge.className = 'text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold';
-                } else {
-                    badge.innerText = 'Perfil Estándar';
-                    badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold';
-                }
-            }
-
-            updateEntronqueCharts();
-        }
-
-        function updateEntronqueCharts() {
-            const sim = state.entronque.simulation;
-            const minNivel = parseFloat(state.entronque.nivelMinimo);
-            const timeLabels = sim.map(s => s.hora);
-
-            if (!chartEntNivel) {
-                const ctx = document.getElementById('chart-entronque-nivel').getContext('2d');
-                chartEntNivel = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Nivel Simulado (m)',
-                                data: sim.map(s => s.nivel),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Nivel Mínimo (Límite)',
-                                data: Array(sim.length).fill(minNivel),
-                                borderColor: '#ef4444',
-                                borderDash: [5, 5],
-                                borderWidth: 2,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartEntNivel.data.labels = timeLabels;
-                chartEntNivel.data.datasets[0].data = sim.map(s => s.nivel);
-                chartEntNivel.data.datasets[1].data = Array(sim.length).fill(minNivel);
-                chartEntNivel.update();
-            }
-
-            if (!chartEntCaudales) {
-                const ctx = document.getElementById('chart-entronque-caudales').getContext('2d');
-                chartEntCaudales = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: [
-                            {
-                                label: 'Entrada (l/s)',
-                                data: sim.map(s => s.entrada),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            },
-                            {
-                                label: 'Salida 1 (l/s)',
-                                data: sim.map(s => s.salida1),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2.5,
-                                pointRadius: sim.length > 48 ? 0 : 2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartEntCaudales.data.labels = timeLabels;
-                chartEntCaudales.data.datasets[0].data = sim.map(s => s.entrada);
-                chartEntCaudales.data.datasets[1].data = sim.map(s => s.salida1);
-                chartEntCaudales.update();
-            }
-        }
-
-        function updateResumenUI() {
-            calculateAlcala();
-            calculateEntronque();
-
-            const simAlc = state.alcala.simulation;
-            const simEnt = state.entronque.simulation;
-
-            const alcMin = Math.min(...simAlc.map(s => s.nivel));
-            const alcMinLimit = parseFloat(state.alcala.nivelMinimo);
-            const alcMargen = alcMin - alcMinLimit;
-            const alcFin = simAlc[simAlc.length - 1].nivel;
-            const alcVolumenNeto = simAlc.reduce((acc, s) => acc + (s.netFlow * 3.6), 0);
-
-            const entMin = Math.min(...simEnt.map(s => s.nivel));
-            const entMinLimit = parseFloat(state.entronque.nivelMinimo);
-            const entMargen = entMin - entMinLimit;
-            const entFin = simEnt[simEnt.length - 1].nivel;
-            const entVolumenNeto = simEnt.reduce((acc, s) => acc + (s.netFlow * 3.6), 0);
-
-            const alcOk = alcMin >= alcMinLimit;
-            const entOk = entMin >= entMinLimit;
-
-            document.getElementById('res-badge-alc').className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${alcOk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-            document.getElementById('res-badge-alc').innerText = alcOk ? 'ÓPTIMO' : 'ALERTA MÍNIMO';
-
-            document.getElementById('res-badge-ent').className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${entOk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-            document.getElementById('res-badge-ent').innerText = entOk ? 'ÓPTIMO' : 'ALERTA MÍNIMO';
-
-            const burguillosAvg = Math.round(simAlc.reduce((acc, s) => acc + s.burguillos, 0) / simAlc.length);
-            document.getElementById('res-alc-burguillos').innerText = state.alcala.burguillosOption === 'con' ? `Con Burguillos (~${burguillosAvg} l/s)` : 'Sin Burguillos (0 l/s)';
-            document.getElementById('res-alc-niveles').innerText = `${parseFloat(state.alcala.nivelInicio).toFixed(2)}m / ${alcFin.toFixed(2)}m`;
-            document.getElementById('res-alc-min').innerText = `${alcMin.toFixed(2)} m`;
-            document.getElementById('res-alc-margen').innerText = `${alcMargen >= 0 ? '+' : ''}${alcMargen.toFixed(2)} m`;
-            document.getElementById('res-alc-margen').className = `font-bold ${alcMargen >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-            document.getElementById('res-alc-volumen').innerText = `${alcVolumenNeto >= 0 ? '+' : ''}${Math.round(alcVolumenNeto).toLocaleString()} m³`;
-
-            document.getElementById('res-ent-niveles').innerText = `${parseFloat(state.entronque.nivelInicio).toFixed(2)}m / ${entFin.toFixed(2)}m`;
-            document.getElementById('res-ent-min').innerText = `${entMin.toFixed(2)} m`;
-            document.getElementById('res-ent-margen').innerText = `${entMargen >= 0 ? '+' : ''}${entMargen.toFixed(2)} m`;
-            document.getElementById('res-ent-margen').className = `font-bold ${entMargen >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-            document.getElementById('res-ent-volumen').innerText = `${entVolumenNeto >= 0 ? '+' : ''}${Math.round(entVolumenNeto).toLocaleString()} m³`;
-
-            const globalStatusEl = document.getElementById('resumen-global-status');
-            if (alcOk && entOk) {
-                globalStatusEl.innerText = 'Sistema Estable (Sin Riesgos)';
-                globalStatusEl.className = 'text-sm font-bold text-emerald-400';
-            } else {
-                globalStatusEl.innerText = 'Atención Requerida (Nivel Crítico)';
-                globalStatusEl.className = 'text-sm font-bold text-rose-400 animate-pulse';
-            }
-
-            const recEl = document.getElementById('resumen-recomendaciones');
-            let htmlRec = '';
-
-            if (!alcOk) {
-                htmlRec += `
-                    <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                        <div><strong>Alcalá del Río:</strong> El nivel desciende por debajo del mínimo de seguridad (${alcMinLimit}m). Se sugiere incrementar caudal de entrada o desactivar Burguillos.</div>
-                    </div>`;
-            } else {
-                htmlRec += `
-                    <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                        <div><strong>Alcalá del Río:</strong> Operando con margen de seguridad óptimo (${alcMargen.toFixed(2)}m sobre el mínimo).</div>
-                    </div>`;
-            }
-
-            if (!entOk) {
-                htmlRec += `
-                    <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                        <div><strong>Entronque:</strong> Nivel por debajo de cota de seguridad (${entMinLimit}m). Elevar aportación de consigna en la entrada.</div>
-                    </div>`;
-            } else {
-                htmlRec += `
-                    <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                        <div><strong>Entronque:</strong> Cota de reserva estable (${entMargen.toFixed(2)}m sobre el mínimo).</div>
-                    </div>`;
-            }
-
-            recEl.innerHTML = htmlRec;
-
-            if (!chartResNiveles) {
-                const ctx = document.getElementById('chart-resumen-niveles').getContext('2d');
-                chartResNiveles = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: simAlc.map(s => s.hora),
-                        datasets: [
-                            {
-                                label: 'Nivel Alcalá del Río (m)',
-                                data: simAlc.map(s => s.nivel),
-                                borderColor: '#0284c7',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2.5
-                            },
-                            {
-                                label: 'Nivel Entronque (m)',
-                                data: simEnt.map(s => s.nivel),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2.5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-            } else {
-                chartResNiveles.data.labels = simAlc.map(s => s.hora);
-                chartResNiveles.data.datasets[0].data = simAlc.map(s => s.nivel);
-                chartResNiveles.data.datasets[1].data = simEnt.map(s => s.nivel);
-                chartResNiveles.update();
-            }
-
-            const totalSalida1Alc = simAlc.reduce((a, s) => a + s.salida1, 0);
-            const totalBurguillos = simAlc.reduce((a, s) => a + s.burguillos, 0);
-            const totalSalida1Ent = simEnt.reduce((a, s) => a + s.salida1, 0);
-
-            if (!chartResDistribucion) {
-                const ctx = document.getElementById('chart-resumen-distribucion').getContext('2d');
-                chartResDistribucion = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Salida 1 Alcalá', 'Burguillos (Alcalá)', 'Salida 1 Entronque'],
-                        datasets: [{
-                            data: [totalSalida1Alc, totalBurguillos, totalSalida1Ent],
-                            backgroundColor: ['#0284c7', '#f59e0b', '#6366f1']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'right' } }
-                    }
-                });
-            } else {
-                chartResDistribucion.data.datasets[0].data = [totalSalida1Alc, totalBurguillos, totalSalida1Ent];
-                chartResDistribucion.update();
-            }
-        }
-
-        // Modal Functions for Excel Data
-        function openExcelModal(target) {
-            activeModalTarget = target;
-            const targetObj = target === 'alcala' ? state.alcala : state.entronque;
-
-            tempHourlyProfile = {
-                entrada: [...targetObj.entradaProfile],
-                salida1: [...targetObj.salida1Profile],
-                burguillos: target === 'alcala' ? [...targetObj.burguillosProfile] : Array(24).fill(0)
-            };
-
-            document.getElementById('excel-modal-title').innerText = `Cargar / Pegar Datos de Excel - ${target === 'alcala' ? 'Alcalá del Río' : 'Entronque'}`;
-            document.getElementById('modal-th-burguillos').style.display = target === 'alcala' ? '' : 'none';
-            document.getElementById('excel-paste-area').value = '';
-
-            renderModalTable();
-            document.getElementById('excel-modal').classList.remove('hidden');
-        }
-
-        function closeExcelModal() {
-            document.getElementById('excel-modal').classList.add('hidden');
-        }
-
-        function renderModalTable() {
-            const tbody = document.getElementById('modal-table-body');
-            let html = '';
-
-            for (let h = 0; h < 24; h++) {
-                const timeStr = `${String(h).padStart(2, '0')}:00`;
-                html += `
-                    <tr>
-                        <td class="py-1.5 px-4 font-semibold text-slate-700">${timeStr}</td>
-                        <td class="py-1.5 px-4">
-                            <input type="number" value="${tempHourlyProfile.entrada[h]}" onchange="tempHourlyProfile.entrada[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs font-semibold focus:ring-1 focus:ring-emerald-500">
-                        </td>
-                        <td class="py-1.5 px-4">
-                            <input type="number" value="${tempHourlyProfile.salida1[h]}" onchange="tempHourlyProfile.salida1[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-emerald-500">
-                        </td>
-                        ${activeModalTarget === 'alcala' ? `
-                            <td class="py-1.5 px-4">
-                                <input type="number" value="${tempHourlyProfile.burguillos[h]}" onchange="tempHourlyProfile.burguillos[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-emerald-500">
-                            </td>
-                        ` : ''}
-                    </tr>
-                `;
-            }
-            tbody.innerHTML = html;
-        }
-
-        // Process pasted column text from Excel
-        function processPastedExcelData() {
-            const rawText = document.getElementById('excel-paste-area').value.trim();
-            if (!rawText) return;
-
-            // Extract numeric values from pasted content
-            const numbers = rawText
-                .split(/[\n,;\t]+/)
-                .map(v => parseFloat(v.replace(/[^0-9.-]/g, '')))
-                .filter(v => !isNaN(v));
-
-            if (numbers.length === 0) return;
-
-            for (let i = 0; i < 24; i++) {
-                if (i < numbers.length) {
-                    tempHourlyProfile.entrada[i] = numbers[i];
-                } else {
-                    tempHourlyProfile.entrada[i] = numbers[numbers.length - 1]; // pad last if fewer than 24
-                }
-            }
-
-            renderModalTable();
-        }
-
-        // Handle Excel File Upload (.xlsx, .xls, .csv)
-        function handleExcelFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    const parsedNumbers = [];
-                    json.forEach(row => {
-                        row.forEach(cell => {
-                            const val = parseFloat(cell);
-                            if (!isNaN(val) && val > 0 && val < 10000) {
-                                parsedNumbers.push(val);
-                            }
-                        });
-                    });
-
-                    if (parsedNumbers.length >= 24) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i];
-                        }
-                    } else if (parsedNumbers.length > 0) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i % parsedNumbers.length];
-                        }
-                    }
-
-                    renderModalTable();
-                } catch (err) {
-                    console.error('Error al leer Excel:', err);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function resetToDefaultProfile() {
-            if (activeModalTarget === 'alcala') {
-                tempHourlyProfile.entrada = [...PATTERN_ENTRADA_ALCALA_DEFAULT];
-                tempHourlyProfile.salida1 = [...PATTERN_SALIDA_1_ALCALA];
-                tempHourlyProfile.burguillos = [...PATTERN_BURGUILLOS];
-            } else {
-                tempHourlyProfile.entrada = [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT];
-                tempHourlyProfile.salida1 = [...PATTERN_SALIDA_1_ENTRONQUE];
-            }
-            renderModalTable();
-        }
-
-        function saveModalChanges() {
-            const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-            targetObj.entradaProfile = [...tempHourlyProfile.entrada];
-            targetObj.salida1Profile = [...tempHourlyProfile.salida1];
-            if (activeModalTarget === 'alcala') {
-                targetObj.burguillosProfile = [...tempHourlyProfile.burguillos];
-            }
-            targetObj.isCustomData = true;
-
-            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / 24);
-            targetObj.caudalEntradaMedio = newAvg;
-
-            if (activeModalTarget === 'alcala') {
-                document.getElementById('alc-caudal-entrada').value = newAvg;
-                updateAlcalaSimulation();
-            } else {
-                document.getElementById('ent-caudal-entrada').value = newAvg;
-                updateEntronqueSimulation();
-            }
-
-            closeExcelModal();
-        }
-
-        function switchTab(tab) {
-            state.currentTab = tab;
-
-            document.getElementById('tab-alcala').classList.add('hidden');
-            document.getElementById('tab-entronque').classList.add('hidden');
-            document.getElementById('tab-resumen').classList.add('hidden');
-
-            document.getElementById('tab-btn-alcala').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-            document.getElementById('tab-btn-entronque').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-            document.getElementById('tab-btn-resumen').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-
-            if (tab === 'alcala') {
-                document.getElementById('tab-alcala').classList.remove('hidden');
-                document.getElementById('tab-btn-alcala').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateAlcalaUI();
-            } else if (tab === 'entronque') {
-                document.getElementById('tab-entronque').classList.remove('hidden');
-                document.getElementById('tab-btn-entronque').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateEntronqueUI();
-            } else if (tab === 'resumen') {
-                document.getElementById('tab-resumen').classList.remove('hidden');
-                document.getElementById('tab-btn-resumen').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateResumenUI();
-            }
-        }
-
-        function setBurguillosOption(opt) {
-            state.alcala.burguillosOption = opt;
-            const btnOn = document.getElementById('btn-burguillos-on');
-            const btnOff = document.getElementById('btn-burguillos-off');
-
-            if (opt === 'con') {
-                btnOn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-white text-slate-800 shadow-sm transition-all';
-                btnOff.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 transition-all';
-            } else {
-                btnOff.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-white text-slate-800 shadow-sm transition-all';
-                btnOn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 transition-all';
-            }
-            updateAlcalaSimulation();
-        }
-
-        function updateAlcalaSimulation() {
-            state.alcala.nivelInicio = parseFloat(document.getElementById('alc-nivel-inicio').value) || 0;
-            state.alcala.nivelMinimo = parseFloat(document.getElementById('alc-nivel-minimo').value) || 0;
-            updateAlcalaUI();
-        }
-
-        function updateEntronqueSimulation() {
-            state.entronque.nivelInicio = parseFloat(document.getElementById('ent-nivel-inicio').value) || 0;
-            state.entronque.nivelMinimo = parseFloat(document.getElementById('ent-nivel-minimo').value) || 0;
-            updateEntronqueUI();
-        }
-
-        function exportSummaryPDF() {
-            window.print();
-        }
-
-        window.onload = function() {
-            updateAlcalaUI();
-            updateEntronqueUI();
-            switchTab('alcala');
-        };
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
