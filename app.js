@@ -62,90 +62,27 @@
 
         function formatDateTime(value) {
             if (!value) return '';
-
-            const date = value instanceof Date
-                ? new Date(value.getTime())
-                : new Date(value);
-
-            if (Number.isNaN(date.getTime())) {
-                return String(value);
-            }
-
-            date.setMilliseconds(0);
-
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
             return new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            })
-                .format(date)
-                .replace(',', '');
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).format(date).replace(',', '');
         }
 
         function parseExcelDate(value) {
-            let date = null;
-
-            if (
-                value instanceof Date &&
-                !Number.isNaN(value.getTime())
-            ) {
-                date = new Date(value.getTime());
-            }
-
-            if (date === null && typeof value === 'number') {
+            if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+            if (typeof value === 'number') {
                 const parsed = XLSX.SSF.parse_date_code(value);
-
-                if (parsed) {
-                    date = new Date(
-                        parsed.y,
-                        parsed.m - 1,
-                        parsed.d,
-                        parsed.H || 0,
-                        parsed.M || 0,
-                        Math.round(parsed.S || 0)
-                    );
-                }
+                if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, Math.floor(parsed.S));
             }
-
-            if (
-                date === null &&
-                typeof value === 'string' &&
-                value.trim()
-            ) {
+            if (typeof value === 'string' && value.trim()) {
                 const direct = new Date(value);
-
-                if (!Number.isNaN(direct.getTime())) {
-                    date = direct;
-                } else {
-                    const match = value.trim().match(
-                        /^(\d{1,2})\d{1,2}\d{4}(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
-                    );
-
-                    if (match) {
-                        date = new Date(
-                            Number(match[3]),
-                            Number(match[2]) - 1,
-                            Number(match[1]),
-                            Number(match[4] || 0),
-                            Number(match[5] || 0),
-                            Number(match[6] || 0)
-                        );
-                    }
-                }
+                if (!Number.isNaN(direct.getTime())) return direct;
+                const match = value.trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+                if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0), Number(match[6] || 0));
             }
-
-            if (date === null || Number.isNaN(date.getTime())) {
-                return null;
-            }
-
-            // Elimina los milisegundos.
-            date.setMilliseconds(0);
-
-            return date;
+            return null;
         }
 
         function getTimeLabels(target, hours) {
