@@ -31,6 +31,7 @@
                 nivelMinimo: 1.00,
                 caudalEntradaMedio: 44.36,
                 isCustomData: false,
+                startDate: null,
                 timestamps: [],
                 entradaProfile: [...PATTERN_ENTRADA_ALCALA_DEFAULT],
                 salida1Profile: [...PATTERN_SALIDA_1_ALCALA],
@@ -47,6 +48,7 @@
                 nivelMinimo: 1.50,
                 caudalEntradaMedio: 48.50,
                 isCustomData: false,
+                startDate: null,
                 timestamps: [],
                 entradaProfile: [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT],
                 salida1Profile: [...PATTERN_SALIDA_1_ENTRONQUE],
@@ -64,7 +66,7 @@
             if (Number.isNaN(date.getTime())) return String(value);
             return new Intl.DateTimeFormat('es-ES', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', hour12: false
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             }).format(date).replace(',', '');
         }
 
@@ -84,13 +86,12 @@
         }
 
         function getTimeLabels(target, hours) {
-            const timestamps = state[target].timestamps || [];
-            if (timestamps.length) {
-                const base = timestamps[0];
-                return Array.from({ length: hours }, (_, i) => {
-                    const source = timestamps[i] || new Date(base.getTime() + i * 3600000);
-                    return formatDateTime(source);
-                });
+            const targetState = state[target];
+            const base = targetState.startDate || (targetState.timestamps && targetState.timestamps[0]);
+            if (base instanceof Date && !Number.isNaN(base.getTime())) {
+                return Array.from({ length: hours }, (_, i) =>
+                    formatDateTime(new Date(base.getTime() + i * 3600000))
+                );
             }
             return Array.from({ length: hours }, (_, i) => {
                 const day = Math.floor(i / 24) + 1;
@@ -294,7 +295,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -309,7 +310,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -420,7 +421,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -435,7 +436,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -664,6 +665,8 @@
                         )
                     ) || workbook.SheetNames[0];
                     const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, raw: true, defval: null });
+                    const allDates = rows.slice(1).map(row => parseExcelDate(row[0])).filter(Boolean);
+                    const initialDate = allDates.length ? allDates[0] : null;
                     const records = rows.slice(1).map(row => ({
                         date: parseExcelDate(row[0]),
                         entrada: Number(row[1]),
@@ -674,7 +677,10 @@
                     if (!records.length) throw new Error('No se encontraron filas válidas con fecha y caudales.');
                     records.sort((a, b) => a.date - b.date);
                     const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-                    targetObj.timestamps = records.map(record => record.date);
+                    targetObj.startDate = initialDate || records[0].date;
+                    targetObj.timestamps = Array.from({ length: Math.min(168, records.length + 1) }, (_, i) =>
+                        new Date(targetObj.startDate.getTime() + i * 3600000)
+                    );
                     targetObj.entradaProfile = records.map(record => record.entrada);
                     targetObj.salida1Profile = records.map(record => record.salida1);
                     if (activeModalTarget === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
