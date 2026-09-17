@@ -60,42 +60,117 @@
             }
         };
 
-        function formatDateTime(value) {
-            if (!value) return '';
-            const date = value instanceof Date ? value : new Date(value);
-            if (Number.isNaN(date.getTime())) return String(value);
-            return new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-            }).format(date).replace(',', '');
+        function roundDateToSecond(value) {
+            if (!value) {
+                return null;
+            }
+        
+            const date = value instanceof Date
+                ? new Date(value.getTime())
+                : new Date(value);
+        
+            if (Number.isNaN(date.getTime())) {
+                return null;
+            }
+        
+            date.setMilliseconds(0);
+        
+            return date;
         }
 
         function parseExcelDate(value) {
-            if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
-            if (typeof value === 'number') {
+            let date = null;
+        
+            if (
+                value instanceof Date &&
+                !Number.isNaN(value.getTime())
+            ) {
+                date = new Date(value.getTime());
+            } else if (typeof value === 'number') {
                 const parsed = XLSX.SSF.parse_date_code(value);
-                if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, Math.floor(parsed.S));
+        
+                if (parsed) {
+                    date = new Date(
+                        parsed.y,
+                        parsed.m - 1,
+                        parsed.d,
+                        parsed.H || 0,
+                        parsed.M || 0,
+                        Math.round(parsed.S || 0),
+                        0
+                    );
+                }
+            } else if (
+                typeof value === 'string' &&
+                value.trim()
+            ) {
+                const text = value.trim();
+        
+                const match = text.match(
+                    /^(\d{1,2})\d{1,2}\d{4}(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+                );
+        
+                if (match) {
+                    date = new Date(
+                        Number(match[3]),
+                        Number(match[2]) - 1,
+                        Number(match[1]),
+                        Number(match[4] || 0),
+                        Number(match[5] || 0),
+                        Number(match[6] || 0),
+                        0
+                    );
+                } else {
+                    const direct = new Date(text);
+        
+                    if (!Number.isNaN(direct.getTime())) {
+                        date = direct;
+                    }
+                }
             }
-            if (typeof value === 'string' && value.trim()) {
-                const direct = new Date(value);
-                if (!Number.isNaN(direct.getTime())) return direct;
-                const match = value.trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
-                if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0), Number(match[6] || 0));
+        
+            if (
+                date === null ||
+                Number.isNaN(date.getTime())
+            ) {
+                return null;
             }
-            return null;
+        
+            /*
+             * Fijar los milisegundos exactamente en cero.
+             * No redondear al segundo siguiente.
+             */
+            date.setMilliseconds(0);
+        
+            return date;
         }
 
         function getTimeLabels(target, hours) {
             const targetState = state[target];
-            const base = targetState.startDate || (targetState.timestamps && targetState.timestamps[0]);
-            if (base instanceof Date && !Number.isNaN(base.getTime())) {
-                return Array.from({ length: hours }, (_, i) =>
-                    formatDateTime(new Date(base.getTime() + i * 3600000))
+        
+            const rawBase =
+                targetState.startDate ||
+                (
+                    targetState.timestamps &&
+                    targetState.timestamps[0]
                 );
+        
+            const base = roundDateToSecond(rawBase);
+        
+            if (base) {
+                return Array.from({ length: hours }, (_, i) => {
+                    const date = new Date(
+                        base.getTime() + i * 3600000
+                    );
+        
+                    return formatDateTime(date);
+                });
             }
+        
             return Array.from({ length: hours }, (_, i) => {
                 const day = Math.floor(i / 24) + 1;
                 const hour = String(i % 24).padStart(2, '0');
+        
                 return `Día ${day} ${hour}:00`;
             });
         }
@@ -301,11 +376,35 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: {
+                    categories: labels,
+                    tickAmount: 10,
+                    labels: {
+                        rotate: -90,
+                        rotateAlways: true,
+                        hideOverlappingLabels: true,
+                        trim: false,
+                        offsetY: 4,
+                        style: {
+                            fontSize: '10px',
+                            colors: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: { borderColor: '#e2e8f0' },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        left: 22,
+                        right: 12,
+                        bottom: 15
+                    }
+                },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
@@ -327,7 +426,24 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: {
+                    categories: labels,
+                    tickAmount: 10,
+                    labels: {
+                        rotate: -90,
+                        rotateAlways: true,
+                        hideOverlappingLabels: true,
+                        trim: false,
+                        offsetY: 4,
+                        style: {
+                            fontSize: '10px',
+                            colors: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -351,7 +467,14 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: { borderColor: '#e2e8f0' }
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        left: 22,
+                        right: 12,
+                        bottom: 15
+                    }
+                },
             };
 
             if (chartAlcNivel) chartAlcNivel.destroy();
@@ -427,11 +550,35 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: {
+                    categories: labels,
+                    tickAmount: 10,
+                    labels: {
+                        rotate: -90,
+                        rotateAlways: true,
+                        hideOverlappingLabels: true,
+                        trim: false,
+                        offsetY: 4,
+                        style: {
+                            fontSize: '10px',
+                            colors: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: { borderColor: '#e2e8f0' },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        left: 22,
+                        right: 12,
+                        bottom: 15
+                    }
+                },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
@@ -453,7 +600,24 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: {
+                    categories: labels,
+                    tickAmount: 10,
+                    labels: {
+                        rotate: -90,
+                        rotateAlways: true,
+                        hideOverlappingLabels: true,
+                        trim: false,
+                        offsetY: 4,
+                        style: {
+                            fontSize: '10px',
+                            colors: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -478,7 +642,14 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: { borderColor: '#e2e8f0' }
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        left: 22,
+                        right: 12,
+                        bottom: 15
+                    }
+                },
             };
 
             if (chartEntNivel) chartEntNivel.destroy();
@@ -677,7 +848,7 @@
                     if (!records.length) throw new Error('No se encontraron filas válidas con fecha y caudales.');
                     records.sort((a, b) => a.date - b.date);
                     const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-                    targetObj.startDate = initialDate || records[0].date;
+                    targetObj.startDate = roundDateToSecond(initialDate || records[0].date);
                     targetObj.timestamps = Array.from({ length: Math.min(168, records.length + 1) }, (_, i) =>
                         new Date(targetObj.startDate.getTime() + i * 3600000)
                     );
