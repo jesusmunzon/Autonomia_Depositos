@@ -266,7 +266,7 @@
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--cyan';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
@@ -307,7 +307,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -322,7 +322,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -410,7 +410,7 @@
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--indigo';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
@@ -432,7 +432,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -447,7 +447,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
