@@ -301,35 +301,11 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: {
-                    categories: labels,
-                    tickAmount: 10,
-                    labels: {
-                        rotate: -90,
-                        rotateAlways: true,
-                        hideOverlappingLabels: true,
-                        trim: false,
-                        offsetY: 4,
-                        style: {
-                            fontSize: '10px',
-                            colors: '#64748b'
-                        }
-                    },
-                    tooltip: {
-                        enabled: false
-                    }
-                },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: {
-                    borderColor: '#e2e8f0',
-                    padding: {
-                        left: 22,
-                        right: 12,
-                        bottom: 15
-                    }
-                },
+                grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
@@ -351,24 +327,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: {
-                    categories: labels,
-                    tickAmount: 10,
-                    labels: {
-                        rotate: -90,
-                        rotateAlways: true,
-                        hideOverlappingLabels: true,
-                        trim: false,
-                        offsetY: 4,
-                        style: {
-                            fontSize: '10px',
-                            colors: '#64748b'
-                        }
-                    },
-                    tooltip: {
-                        enabled: false
-                    }
-                },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -392,14 +351,7 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: {
-                    borderColor: '#e2e8f0',
-                    padding: {
-                        left: 22,
-                        right: 12,
-                        bottom: 15
-                    }
-                },
+                grid: { borderColor: '#e2e8f0' }
             };
 
             if (chartAlcNivel) chartAlcNivel.destroy();
@@ -475,35 +427,11 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: {
-                    categories: labels,
-                    tickAmount: 10,
-                    labels: {
-                        rotate: -90,
-                        rotateAlways: true,
-                        hideOverlappingLabels: true,
-                        trim: false,
-                        offsetY: 4,
-                        style: {
-                            fontSize: '10px',
-                            colors: '#64748b'
-                        }
-                    },
-                    tooltip: {
-                        enabled: false
-                    }
-                },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: {
-                    borderColor: '#e2e8f0',
-                    padding: {
-                        left: 22,
-                        right: 12,
-                        bottom: 15
-                    }
-                },
+                grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
@@ -525,24 +453,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: {
-                    categories: labels,
-                    tickAmount: 10,
-                    labels: {
-                        rotate: -90,
-                        rotateAlways: true,
-                        hideOverlappingLabels: true,
-                        trim: false,
-                        offsetY: 4,
-                        style: {
-                            fontSize: '10px',
-                            colors: '#64748b'
-                        }
-                    },
-                    tooltip: {
-                        enabled: false
-                    }
-                },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -567,14 +478,7 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: {
-                    borderColor: '#e2e8f0',
-                    padding: {
-                        left: 22,
-                        right: 12,
-                        bottom: 15
-                    }
-                },
+                grid: { borderColor: '#e2e8f0' }
             };
 
             if (chartEntNivel) chartEntNivel.destroy();
