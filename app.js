@@ -814,7 +814,7 @@
                     if (!records.length) throw new Error('No se encontraron filas válidas con fecha y caudales.');
                     records.sort((a, b) => a.date - b.date);
                     const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-                    targetObj.startDate = initialDate || records[0].date;
+                    targetObj.startDate = roundDateToSecond(initialDate || records[0].date);
                     targetObj.timestamps = Array.from({ length: Math.min(168, records.length + 1) }, (_, i) =>
                         new Date(targetObj.startDate.getTime() + i * 3600000)
                     );
