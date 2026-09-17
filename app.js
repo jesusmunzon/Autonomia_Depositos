@@ -99,6 +99,17 @@
             return parts.length ? parts.join(' ') : '0 h';
         }
 
+        function getInletProfileAverage(target) {
+            const targetState = state[target];
+            const profile = targetState.entradaProfile || [];
+            const simulatedHours = targetState.startDate
+                ? Math.min(168, profile.length)
+                : Math.min(targetState.maxHours || profile.length, profile.length);
+            if (!simulatedHours) return targetState.caudalEntradaMedio || 0;
+            const values = profile.slice(0, simulatedHours);
+            return values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length;
+        }
+
         // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
         function toggleInletMode(target) {
             if (target === 'alcala') {
@@ -109,7 +120,7 @@
                 if (isChecked) {
                     inputEl.disabled = true;
                     inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-brand-500 focus:outline-none';
-                    const avg = (state.alcala.entradaProfile.reduce((a,b)=>a+b, 0) / state.alcala.entradaProfile.length).toFixed(2);
+                    const avg = getInletProfileAverage('alcala').toFixed(2);
                     inputEl.value = avg;
                 } else {
                     inputEl.disabled = false;
@@ -125,7 +136,7 @@
                 if (isChecked) {
                     inputEl.disabled = true;
                     inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-indigo-500 focus:outline-none';
-                    const avg = (state.entronque.entradaProfile.reduce((a,b)=>a+b, 0) / state.entronque.entradaProfile.length).toFixed(2);
+                    const avg = getInletProfileAverage('entronque').toFixed(2);
                     inputEl.value = avg;
                 } else {
                     inputEl.disabled = false;
@@ -248,7 +259,9 @@
             return {
                 initial,
                 alertLevel,
-                inletAvg: periodInletSum / averageHours,
+                inletAvg: breachIndex === -1
+                    ? (state.alcala.useDefaultInlet ? getInletProfileAverage('alcala') : fixed)
+                    : (periodInletSum / averageHours),
                 outletAvg: periodOutletSum / averageHours,
                 autonomy: breachIndex === -1 ? '> 7 días' : formatAutonomy(breachIndex + 1),
                 minimumTime: breachIndex === -1 ? 'No alcanzado' : labels[breachIndex]
@@ -310,7 +323,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -320,12 +333,12 @@
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: { borderColor: '#e2e8f0' },
+                grid: { borderColor: '#e2e8f0', padding: { top: 4, right: 6, bottom: -18, left: 4 } },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -366,7 +379,7 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: { borderColor: '#e2e8f0' }
+                grid: { borderColor: '#e2e8f0', padding: { top: 4, right: 6, bottom: -18, left: 4 } }
             };
 
             if (chartAlcNivel) chartAlcNivel.destroy();
@@ -397,7 +410,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -407,12 +420,12 @@
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
-                grid: { borderColor: '#e2e8f0' },
+                grid: { borderColor: '#e2e8f0', padding: { top: 4, right: 6, bottom: -18, left: 4 } },
                 annotations: { yaxis: [{ y: minLimit, borderColor: '#ef4444', strokeDashArray: 5 }] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -454,7 +467,7 @@
                     }
                 },
                 legend: { position: 'top', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
-                grid: { borderColor: '#e2e8f0' }
+                grid: { borderColor: '#e2e8f0', padding: { top: 4, right: 6, bottom: -18, left: 4 } }
             };
 
             if (chartEntNivel) chartEntNivel.destroy();
@@ -602,14 +615,14 @@
             }
             targetObj.isCustomData = true;
 
-            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / targetObj.entradaProfile.length);
+            const newAvg = getInletProfileAverage(activeModalTarget);
             targetObj.caudalEntradaMedio = newAvg;
 
             if (activeModalTarget === 'alcala') {
-                document.getElementById('alc-caudal-entrada').value = newAvg;
+                document.getElementById('alc-caudal-entrada').value = newAvg.toFixed(2);
                 updateAlcalaSimulation();
             } else {
-                document.getElementById('ent-caudal-entrada').value = newAvg;
+                document.getElementById('ent-caudal-entrada').value = newAvg.toFixed(2);
                 updateEntronqueSimulation();
             }
 
@@ -684,7 +697,7 @@
             targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000));
             targetObj.maxHours = Math.min(168, records.length);
             targetObj.isCustomData = true;
-            const average = targetObj.entradaProfile.reduce((sum, value) => sum + value, 0) / targetObj.entradaProfile.length;
+            const average = getInletProfileAverage(target);
             targetObj.caudalEntradaMedio = average;
             const input = document.getElementById(target === 'alcala' ? 'alc-caudal-entrada' : 'ent-caudal-entrada');
             if (input) input.value = average.toFixed(2);
