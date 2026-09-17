@@ -849,9 +849,19 @@
                     records.sort((a, b) => a.date - b.date);
                     const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
                     targetObj.startDate = roundDateToSecond(initialDate || records[0].date);
-                    targetObj.timestamps = Array.from({ length: Math.min(168, records.length + 1) }, (_, i) =>
-                        new Date(targetObj.startDate.getTime() + i * 3600000)
+
+                    targetObj.timestamps = Array.from(
+                        { length: Math.min(168, records.length + 1) },
+                        (_, i) => {
+                            const timestamp = new Date(
+                                targetObj.startDate.getTime() +
+                                i * 3600000
+                            );
+                            timestamp.setMilliseconds(0);
+                            return timestamp;
+                        }
                     );
+                        
                     targetObj.entradaProfile = records.map(record => record.entrada);
                     targetObj.salida1Profile = records.map(record => record.salida1);
                     if (activeModalTarget === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
