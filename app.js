@@ -224,7 +224,7 @@
             const burguillosAvg = Math.round(sim.reduce((acc, s) => acc + s.burguillos, 0) / sim.length);
             const diffNivel = nivelFinal - state.alcala.nivelInicio;
 
-            document.getElementById('alc-label-nivel-final').innerText = 'Nivel Final';
+            document.getElementById('alc-label-nivel-final').innerText = 'NIVEL FINAL';
             document.getElementById('alc-kpi-nivel-final').innerText = `${nivelFinal.toFixed(2)} m`;
             
             const diffEl = document.getElementById('alc-kpi-diff-nivel');
@@ -237,11 +237,11 @@
             if (state.alcala.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
                 autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-cyan-300 bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
+                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--cyan';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
@@ -380,11 +380,11 @@
             if (state.entronque.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
                 autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
+                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--indigo';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;

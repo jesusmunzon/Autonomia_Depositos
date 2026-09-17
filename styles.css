@@ -57,6 +57,102 @@ body {
     cursor: pointer !important;
 }
 
+/* KPI v20 corrected PC layout */
+.kpi-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
 
-/* KPI v18: 200 px, alineados a la izquierda */
-@media (min-width:768px){.kpi-card,#alc-kpi-autonomia-card,#ent-kpi-autonomia-card{width:200px!important;max-width:200px!important;}}
+.kpi-card,
+#alc-kpi-autonomia-card,
+#ent-kpi-autonomia-card {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 132px !important;
+    min-height: 132px !important;
+    padding: 18px 20px !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #dbe4ee !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.kpi-card > p,
+#alc-kpi-autonomia-card > p,
+#ent-kpi-autonomia-card > p {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    font-size: 12pt !important;
+    line-height: 15pt !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+.kpi-card > h3,
+#alc-kpi-autonomia-card > h3,
+#ent-kpi-autonomia-card > h3 {
+    margin: 14px 0 0 !important;
+    font-size: 22pt !important;
+    line-height: 24pt !important;
+    font-weight: 900 !important;
+    color: #0f172a !important;
+    white-space: nowrap !important;
+}
+
+.kpi-card > span,
+#alc-kpi-autonomia-card > span,
+#ent-kpi-autonomia-card > span {
+    margin-top: auto !important;
+    font-size: 8pt !important;
+    line-height: 11pt !important;
+    white-space: normal !important;
+}
+
+.kpi-card--autonomy {
+    padding-right: 52px !important;
+}
+.kpi-card--cyan {
+    border: 2px solid #67e8f9 !important;
+    background: linear-gradient(145deg, #ecfeff, #f0f9ff) !important;
+}
+.kpi-card--indigo {
+    border: 2px solid #a5b4fc !important;
+    background: linear-gradient(145deg, #eef2ff, #f5f3ff) !important;
+}
+.kpi-card--warning {
+    border: 2px solid #fcd34d !important;
+    background: linear-gradient(145deg, #fffbeb, #fff7ed) !important;
+}
+#alc-kpi-autonomia-card > div,
+#ent-kpi-autonomia-card > div {
+    top: 13px !important;
+    right: 13px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+}
+
+@media (min-width: 768px) {
+    .kpi-row {
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: space-between !important;
+        gap: 0 !important;
+    }
+    .kpi-row > .kpi-card,
+    .kpi-row > #alc-kpi-autonomia-card,
+    .kpi-row > #ent-kpi-autonomia-card {
+        flex: 0 0 180px !important;
+        width: 180px !important;
+        max-width: 180px !important;
+    }
+}
