@@ -203,6 +203,32 @@
             state.entronque.simulation = data.slice(0, visibleHours);
         }
 
+        function calculateAlcalaScenario(withBurguillos) {
+            let level = parseFloat(state.alcala.nivelInicio) || 0;
+            const initial = level, limit = parseFloat(state.alcala.nivelMinimo) || 0, factor = state.alcala.factor;
+            const hours = state.alcala.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
+            const fixed = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
+            let minimum = level, breach = -1, inletSum = 0, outletSum = 0;
+            for (let i=0; i<hours; i++) {
+                const hod=i%24;
+                const inlet=state.alcala.useDefaultInlet ? (state.alcala.entradaProfile[i] ?? state.alcala.entradaProfile[hod] ?? 44.36) : fixed;
+                const outlet1=state.alcala.salida1Profile[i] ?? state.alcala.salida1Profile[hod] ?? 29.9;
+                const branch=withBurguillos ? (state.alcala.burguillosProfile[i] ?? state.alcala.burguillosProfile[hod] ?? 0) : 0;
+                const outlet=outlet1+branch; inletSum+=inlet; outletSum+=outlet;
+                level=(((inlet-outlet)*3.6)+(level*factor))/factor; minimum=Math.min(minimum,level);
+                if (breach===-1 && level<=limit) breach=i+1;
+            }
+            return {initial,final:level,inletAvg:inletSum/hours,outletAvg:outletSum/hours,diff:level-initial,autonomy:breach===-1?'> 7 días':formatAutonomy(breach),minimum};
+        }
+        function updateAlcalaHypothesisSummary() {
+            const scenarios={con:calculateAlcalaScenario(true),sin:calculateAlcalaScenario(false)};
+            Object.entries(scenarios).forEach(([key,v])=>{
+                const put=(field,text)=>{const el=document.getElementById(`hyp-${key}-${field}`);if(el)el.innerText=text;};
+                put('inicio',`${v.initial.toFixed(2)} m`); put('final',`${v.final.toFixed(2)} m`);
+                put('entrada',`${Math.round(v.inletAvg)} l/s`); put('salida',`${Math.round(v.outletAvg)} l/s`);
+                put('diff',`${v.diff>=0?'+':''}${v.diff.toFixed(2)} m`); put('autonomia',v.autonomy); put('minimo',`${v.minimum.toFixed(2)} m`);
+            });
+        }
         // Update UI for Alcalá
         function updateAlcalaUI() {
             calculateAlcala();
@@ -236,11 +262,11 @@
             const autonomyCardEl = document.getElementById('alc-kpi-autonomia-card');
             if (state.alcala.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
-                autonomyStatusEl.innerText = `Mínimo: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--cyan';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
@@ -248,6 +274,7 @@
             document.getElementById('alc-kpi-salida-total').innerText = `${salidaTotalAvg} l/s`;
             document.getElementById('alc-kpi-burguillos-status').innerText = `Burguillos medio: ${state.alcala.burguillosOption === 'con' ? burguillosAvg + ' l/s' : '0 l/s'}`;
 
+            updateAlcalaHypothesisSummary();
             updateAlcalaCharts();
         }
 
@@ -379,11 +406,11 @@
             const autonomyCardEl = document.getElementById('ent-kpi-autonomia-card');
             if (state.entronque.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
-                autonomyStatusEl.innerText = `Mínimo: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--indigo';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
@@ -472,93 +499,6 @@
             if (chartEntCaudales) chartEntCaudales.destroy();
             chartEntCaudales = new ApexCharts(document.querySelector('#chart-entronque-caudales'), flowOptions);
             chartEntCaudales.render();
-        }
-
-        function updateResumenUI() {
-            calculateAlcala();
-            calculateEntronque();
-
-            const simAlc = state.alcala.simulation;
-            const simEnt = state.entronque.simulation;
-
-            const alcMin = Math.min(...simAlc.map(s => s.nivel));
-            const alcMinLimit = parseFloat(state.alcala.nivelMinimo);
-            const alcMargen = alcMin - alcMinLimit;
-            const alcFin = simAlc[simAlc.length - 1].nivel;
-            const alcVolumenNeto = simAlc.reduce((acc, s) => acc + (s.netFlow * 3.6), 0);
-
-            const entMin = Math.min(...simEnt.map(s => s.nivel));
-            const entMinLimit = parseFloat(state.entronque.nivelMinimo);
-            const entMargen = entMin - entMinLimit;
-            const entFin = simEnt[simEnt.length - 1].nivel;
-            const entVolumenNeto = simEnt.reduce((acc, s) => acc + (s.netFlow * 3.6), 0);
-
-            const alcOk = alcMin >= alcMinLimit;
-            const entOk = entMin >= entMinLimit;
-
-            document.getElementById('res-badge-alc').className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${alcOk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-            document.getElementById('res-badge-alc').innerText = alcOk ? 'ÓPTIMO' : 'ALERTA MÍNIMO';
-
-            document.getElementById('res-badge-ent').className = `text-xs px-2.5 py-0.5 rounded-full font-semibold ${entOk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-            document.getElementById('res-badge-ent').innerText = entOk ? 'ÓPTIMO' : 'ALERTA MÍNIMO';
-
-            const burguillosAvg = Math.round(simAlc.reduce((acc, s) => acc + s.burguillos, 0) / simAlc.length);
-            document.getElementById('res-alc-burguillos').innerText = state.alcala.burguillosOption === 'con' ? `Con Burguillos (~${burguillosAvg} l/s)` : 'Sin Burguillos (0 l/s)';
-            document.getElementById('res-alc-niveles').innerText = `${parseFloat(state.alcala.nivelInicio).toFixed(2)}m / ${alcFin.toFixed(2)}m`;
-            document.getElementById('res-alc-min').innerText = `${alcMin.toFixed(2)} m`;
-            document.getElementById('res-alc-margen').innerText = `${alcMargen >= 0 ? '+' : ''}${alcMargen.toFixed(2)} m`;
-            document.getElementById('res-alc-margen').className = `font-bold ${alcMargen >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-            document.getElementById('res-alc-volumen').innerText = `${alcVolumenNeto >= 0 ? '+' : ''}${Math.round(alcVolumenNeto).toLocaleString()} m³`;
-
-            document.getElementById('res-ent-niveles').innerText = `${parseFloat(state.entronque.nivelInicio).toFixed(2)}m / ${entFin.toFixed(2)}m`;
-            document.getElementById('res-ent-min').innerText = `${entMin.toFixed(2)} m`;
-            document.getElementById('res-ent-margen').innerText = `${entMargen >= 0 ? '+' : ''}${entMargen.toFixed(2)} m`;
-            document.getElementById('res-ent-margen').className = `font-bold ${entMargen >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-            document.getElementById('res-ent-volumen').innerText = `${entVolumenNeto >= 0 ? '+' : ''}${Math.round(entVolumenNeto).toLocaleString()} m³`;
-
-            const globalStatusEl = document.getElementById('resumen-global-status');
-            if (alcOk && entOk) {
-                globalStatusEl.innerText = 'Sistema Estable (Sin Riesgos)';
-                globalStatusEl.className = 'text-sm font-bold text-emerald-400';
-            } else {
-                globalStatusEl.innerText = 'Atención Requerida (Nivel Crítico)';
-                globalStatusEl.className = 'text-sm font-bold text-rose-400 animate-pulse';
-            }
-
-            const recEl = document.getElementById('resumen-recomendaciones');
-            let htmlRec = '';
-
-            if (!alcOk) {
-                htmlRec += `
-                    <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                        <div><strong>Alcalá del Río:</strong> El nivel desciende por debajo del mínimo de seguridad (${alcMinLimit}m). Se sugiere incrementar caudal de entrada o desactivar Burguillos.</div>
-                    </div>`;
-            } else {
-                htmlRec += `
-                    <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                        <div><strong>Alcalá del Río:</strong> Operando con margen de seguridad óptimo (${alcMargen.toFixed(2)}m sobre el mínimo).</div>
-                    </div>`;
-            }
-
-            if (!entOk) {
-                htmlRec += `
-                    <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                        <div><strong>Entronque:</strong> Nivel por debajo de cota de seguridad (${entMinLimit}m). Elevar aportación de consigna en la entrada.</div>
-                    </div>`;
-            } else {
-                htmlRec += `
-                    <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-start space-x-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                        <div><strong>Entronque:</strong> Cota de reserva estable (${entMargen.toFixed(2)}m sobre el mínimo).</div>
-                    </div>`;
-            }
-
-            recEl.innerHTML = htmlRec;
-
-            // Las gráficas principales usan ApexCharts. El resumen conserva sus indicadores y recomendaciones.
         }
 
         // Modal Functions for Excel Data
@@ -713,28 +653,12 @@
 
         function switchTab(tab) {
             state.currentTab = tab;
-
-            document.getElementById('tab-alcala').classList.add('hidden');
-            document.getElementById('tab-entronque').classList.add('hidden');
-            document.getElementById('tab-resumen').classList.add('hidden');
-
-            document.getElementById('tab-btn-alcala').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-            document.getElementById('tab-btn-entronque').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-            document.getElementById('tab-btn-resumen').className = 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
-
-            if (tab === 'alcala') {
-                document.getElementById('tab-alcala').classList.remove('hidden');
-                document.getElementById('tab-btn-alcala').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateAlcalaUI();
-            } else if (tab === 'entronque') {
-                document.getElementById('tab-entronque').classList.remove('hidden');
-                document.getElementById('tab-btn-entronque').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateEntronqueUI();
-            } else if (tab === 'resumen') {
-                document.getElementById('tab-resumen').classList.remove('hidden');
-                document.getElementById('tab-btn-resumen').className = 'py-3 px-1 tab-active flex items-center space-x-2';
-                updateResumenUI();
-            }
+            const isEntronque = tab === 'entronque';
+            document.getElementById('tab-alcala').classList.toggle('hidden', isEntronque);
+            document.getElementById('tab-entronque').classList.toggle('hidden', !isEntronque);
+            document.getElementById('tab-btn-alcala').className = !isEntronque ? 'py-3 px-1 tab-active flex items-center space-x-2' : 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
+            document.getElementById('tab-btn-entronque').className = isEntronque ? 'py-3 px-1 tab-active flex items-center space-x-2' : 'py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2';
+            if (isEntronque) updateEntronqueUI(); else updateAlcalaUI();
         }
 
         function setBurguillosOption(opt) {
