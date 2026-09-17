@@ -70,7 +70,7 @@
                 if (!Number.isNaN(direct.getTime())) date = direct;
             }
             if (!date || Number.isNaN(date.getTime())) return null;
-            date.setSeconds(0, 0);
+            date.setMilliseconds(0);
             return date;
         }
 
@@ -78,7 +78,7 @@
             const date = normalizeExcelDate(value);
             if (!date) return '';
             const pad = value => String(value).padStart(2, '0');
-            return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+            return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
         }
 
         function getTimeLabels(target, hours) {
@@ -286,7 +286,7 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
@@ -312,8 +312,8 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
-                yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
                     shared: true,
@@ -411,7 +411,7 @@
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
@@ -437,8 +437,8 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
-                yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
                     shared: true,
@@ -788,11 +788,11 @@
             records.sort((a, b) => a.date - b.date);
             const targetObj = state[target];
             targetObj.startDate = new Date(firstDate.getTime());
-            targetObj.startDate.setSeconds(0, 0);
+            targetObj.startDate.setMilliseconds(0);
             targetObj.entradaProfile = records.map(record => record.entrada);
             targetObj.salida1Profile = records.map(record => record.salida1);
             if (target === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
-            targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(Math.floor(targetObj.startDate.getTime() / 60000) * 60000 + i * 3600000));
+            targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000));
             targetObj.maxHours = Math.min(168, records.length);
             targetObj.isCustomData = true;
             const average = targetObj.entradaProfile.reduce((sum, value) => sum + value, 0) / targetObj.entradaProfile.length;
