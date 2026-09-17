@@ -58,15 +58,45 @@
             }
         };
 
-        function getTimeLabels(days) {
-            const labels = [];
-            for (let d = 1; d <= days; d++) {
-                for (let h = 0; h < 24; h++) {
-                    const timeStr = `${String(h).padStart(2, '0')}:00`;
-                    labels.push(days === 1 ? timeStr : `Día ${d} ${timeStr}`);
-                }
+        function normalizeExcelDate(value) {
+            let date = null;
+            if (value instanceof Date && !Number.isNaN(value.getTime())) {
+                date = new Date(value.getTime());
+            } else if (typeof value === 'number') {
+                const parsed = XLSX.SSF.parse_date_code(value);
+                if (parsed) date = new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H || 0, parsed.M || 0, Math.floor(parsed.S || 0), 0);
+            } else if (typeof value === 'string' && value.trim()) {
+                const direct = new Date(value.trim());
+                if (!Number.isNaN(direct.getTime())) date = direct;
             }
-            return labels;
+            if (!date || Number.isNaN(date.getTime())) return null;
+            date.setMilliseconds(0);
+            return date;
+        }
+
+        function formatDateTime(value) {
+            const date = normalizeExcelDate(value);
+            if (!date) return '';
+            const pad = value => String(value).padStart(2, '0');
+            return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        function getTimeLabels(target, hours) {
+            const base = state[target].startDate;
+            if (base instanceof Date && !Number.isNaN(base.getTime())) {
+                return Array.from({ length: hours }, (_, i) => formatDateTime(new Date(base.getTime() + i * 3600000)));
+            }
+            return Array.from({ length: hours }, (_, i) => `Día ${Math.floor(i / 24) + 1} ${String(i % 24).padStart(2, '0')}:00`);
+        }
+
+        function formatAutonomy(hours) {
+            if (hours === null || hours === undefined || hours >= 168) return '> 7 días';
+            const days = Math.floor(hours / 24);
+            const remainingHours = Math.floor(hours % 24);
+            const parts = [];
+            if (days) parts.push(`${days} ${days === 1 ? 'día' : 'días'}`);
+            if (remainingHours) parts.push(`${remainingHours} h`);
+            return parts.length ? parts.join(' ') : '0 h';
         }
 
         // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
@@ -115,16 +145,16 @@
             const useExcelProfile = state.alcala.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.alcala.nivelMinimo) || 0;
-            const maxHours = state.alcala.maxHours;
-            const labels = getTimeLabels(Math.ceil(maxHours / 24));
+            const maxHours = state.alcala.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
+            const labels = getTimeLabels('alcala', maxHours);
             let breachHour = -1;
 
             for (let i = 0; i < maxHours; i++) {
                 const hourOfDay = i % 24;
                 const dayNum = Math.floor(i / 24) + 1;
-                const entrada = useExcelProfile ? (state.alcala.entradaProfile[hourOfDay] ?? 44.36) : fixedInletVal;
-                const salida1 = state.alcala.salida1Profile[hourOfDay] ?? 29.9;
-                const burguillos = isBurguillosActive ? (state.alcala.burguillosProfile[hourOfDay] ?? 0) : 0;
+                const entrada = useExcelProfile ? (state.alcala.entradaProfile[i] ?? state.alcala.entradaProfile[hourOfDay] ?? 44.36) : fixedInletVal;
+                const salida1 = state.alcala.salida1Profile[i] ?? state.alcala.salida1Profile[hourOfDay] ?? 29.9;
+                const burguillos = isBurguillosActive ? (state.alcala.burguillosProfile[i] ?? state.alcala.burguillosProfile[hourOfDay] ?? 0) : 0;
                 const salidaTotal = salida1 + burguillos;
                 const netFlow = entrada - salidaTotal;
                 const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
@@ -149,15 +179,15 @@
             const useExcelProfile = state.entronque.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.entronque.nivelMinimo) || 0;
-            const maxHours = state.entronque.maxHours;
-            const labels = getTimeLabels(Math.ceil(maxHours / 24));
+            const maxHours = state.entronque.startDate ? Math.min(168, state.entronque.entradaProfile.length) : state.entronque.maxHours;
+            const labels = getTimeLabels('entronque', maxHours);
             let breachHour = -1;
 
             for (let i = 0; i < maxHours; i++) {
                 const hourOfDay = i % 24;
                 const dayNum = Math.floor(i / 24) + 1;
-                const entrada = useExcelProfile ? (state.entronque.entradaProfile[hourOfDay] ?? 48.5) : fixedInletVal;
-                const salida1 = state.entronque.salida1Profile[hourOfDay] ?? 30.0;
+                const entrada = useExcelProfile ? (state.entronque.entradaProfile[i] ?? state.entronque.entradaProfile[hourOfDay] ?? 48.5) : fixedInletVal;
+                const salida1 = state.entronque.salida1Profile[i] ?? state.entronque.salida1Profile[hourOfDay] ?? 30.0;
                 const netFlow = entrada - salida1;
                 const nextNivel = ((netFlow * 3.6) + (currentNivel * factor)) / factor;
 
@@ -201,20 +231,18 @@
             diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
             diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            const minEl = document.getElementById('alc-kpi-nivel-min');
-            minEl.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-            minEl.className = `text-2xl font-bold mt-1 ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-
-            const statusMinEl = document.getElementById('alc-kpi-status-min');
-            if (nivelMinAlcanzado < minNivelReq) {
-                const minTimeLabel = sim[minIndex].hora;
-                statusMinEl.innerText = `¡ALERTA MÍNIMO! (${minTimeLabel})`;
-                statusMinEl.className = 'text-xs font-bold text-rose-600 animate-pulse';
+            const autonomyEl = document.getElementById('alc-kpi-autonomia');
+            const autonomyStatusEl = document.getElementById('alc-kpi-autonomia-status');
+            const autonomyCardEl = document.getElementById('alc-kpi-autonomia-card');
+            if (state.alcala.breachHour !== -1) {
+                autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
-                statusMinEl.innerText = 'Nivel Seguro en Horizonte';
-                statusMinEl.className = 'text-xs font-semibold text-emerald-600';
+                autonomyEl.innerText = '> 7 días';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-cyan-300 bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
             }
-
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('alc-kpi-salida-total').innerText = `${salidaTotalAvg} l/s`;
@@ -251,11 +279,8 @@
             const maxIndex = niveles.indexOf(maxValue);
             const minIndex = niveles.indexOf(minValue);
 
-            document.getElementById('alc-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
-            document.getElementById('alc-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
-
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -270,7 +295,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -349,20 +374,18 @@
             diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
             diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            const minEl = document.getElementById('ent-kpi-nivel-min');
-            minEl.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-            minEl.className = `text-2xl font-bold mt-1 ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-
-            const statusMinEl = document.getElementById('ent-kpi-status-min');
-            if (nivelMinAlcanzado < minNivelReq) {
-                const minTimeLabel = sim[minIndex].hora;
-                statusMinEl.innerText = `¡ALERTA MÍNIMO! (${minTimeLabel})`;
-                statusMinEl.className = 'text-xs font-bold text-rose-600 animate-pulse';
+            const autonomyEl = document.getElementById('ent-kpi-autonomia');
+            const autonomyStatusEl = document.getElementById('ent-kpi-autonomia-status');
+            const autonomyCardEl = document.getElementById('ent-kpi-autonomia-card');
+            if (state.entronque.breachHour !== -1) {
+                autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
-                statusMinEl.innerText = 'Nivel Seguro en Horizonte';
-                statusMinEl.className = 'text-xs font-semibold text-emerald-600';
+                autonomyEl.innerText = '> 7 días';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
             }
-
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
 
@@ -381,11 +404,8 @@
             const maxIndex = niveles.indexOf(maxValue);
             const minIndex = niveles.indexOf(minValue);
 
-            document.getElementById('ent-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
-            document.getElementById('ent-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
-
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -400,7 +420,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -756,45 +776,25 @@
             const wanted = target === 'alcala' ? 'alcala' : 'entronque';
             const sheetName = workbook.SheetNames.find(name => normalizeSheetName(name).includes(wanted));
             if (!sheetName) return false;
-
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-                header: 1,
-                raw: true,
-                defval: null
-            });
-
-            const firstDate = rows.slice(1)
-                .map(row => normalizeExcelDate(row[0]))
-                .find(Boolean);
-
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, raw: true, defval: null });
+            const firstDate = rows.slice(1).map(row => normalizeExcelDate(row[0])).find(Boolean);
             const records = rows.slice(1).map(row => ({
                 date: normalizeExcelDate(row[0]),
                 entrada: Number(row[1]),
                 salida1: Number(row[2]),
                 burguillos: target === 'alcala' ? Number(row[3] || 0) : 0
-            })).filter(record =>
-                record.date &&
-                Number.isFinite(record.entrada) &&
-                Number.isFinite(record.salida1)
-            );
-
-            if (!records.length) return false;
-
+            })).filter(record => record.date && Number.isFinite(record.entrada) && Number.isFinite(record.salida1));
+            if (!firstDate || !records.length) return false;
+            records.sort((a, b) => a.date - b.date);
             const targetObj = state[target];
-            targetObj.startDate = new Date((firstDate || records[0].date).getTime());
+            targetObj.startDate = new Date(firstDate.getTime());
             targetObj.startDate.setMilliseconds(0);
             targetObj.entradaProfile = records.map(record => record.entrada);
             targetObj.salida1Profile = records.map(record => record.salida1);
-            if (target === 'alcala') {
-                targetObj.burguillosProfile = records.map(record => record.burguillos);
-            }
-            targetObj.timestamps = Array.from(
-                { length: Math.min(168, records.length) },
-                (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000)
-            );
+            if (target === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
+            targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000));
             targetObj.maxHours = Math.min(168, records.length);
             targetObj.isCustomData = true;
-
             const average = targetObj.entradaProfile.reduce((sum, value) => sum + value, 0) / targetObj.entradaProfile.length;
             targetObj.caudalEntradaMedio = average;
             const input = document.getElementById(target === 'alcala' ? 'alc-caudal-entrada' : 'ent-caudal-entrada');
@@ -823,8 +823,8 @@
         }
 
         window.onload = async function() {
+            await loadDefaultExcel();
             updateAlcalaUI();
             updateEntronqueUI();
-            await loadDefaultExcel();
             switchTab('alcala');
         };
