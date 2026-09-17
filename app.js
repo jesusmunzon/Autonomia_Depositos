@@ -236,7 +236,7 @@
             const autonomyCardEl = document.getElementById('alc-kpi-autonomia-card');
             if (state.alcala.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
-                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
+                autonomyStatusEl.innerText = `Mínimo: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
@@ -379,7 +379,7 @@
             const autonomyCardEl = document.getElementById('ent-kpi-autonomia-card');
             if (state.entronque.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
-                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
+                autonomyStatusEl.innerText = `Mínimo: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
