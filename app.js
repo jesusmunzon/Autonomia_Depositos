@@ -60,14 +60,40 @@
             }
         };
 
+        function roundDateToSecond(value) {
+            const date = value instanceof Date
+                ? new Date(value.getTime())
+                : new Date(value);
+        
+            if (Number.isNaN(date.getTime())) {
+                return null;
+            }
+        
+            return new Date(
+                Math.round(date.getTime() / 1000) * 1000
+            );
+        }
+
         function formatDateTime(value) {
             if (!value) return '';
-            const date = value instanceof Date ? value : new Date(value);
-            if (Number.isNaN(date.getTime())) return String(value);
+        
+            const date = roundDateToSecond(value);
+        
+            if (!date) {
+                return String(value);
+            }
+        
             return new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-            }).format(date).replace(',', '');
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            })
+                .format(date)
+                .replace(',', '');
         }
 
         function parseExcelDate(value) {
@@ -87,15 +113,30 @@
 
         function getTimeLabels(target, hours) {
             const targetState = state[target];
-            const base = targetState.startDate || (targetState.timestamps && targetState.timestamps[0]);
-            if (base instanceof Date && !Number.isNaN(base.getTime())) {
-                return Array.from({ length: hours }, (_, i) =>
-                    formatDateTime(new Date(base.getTime() + i * 3600000))
+        
+            const rawBase =
+                targetState.startDate ||
+                (
+                    targetState.timestamps &&
+                    targetState.timestamps[0]
                 );
+        
+            const base = roundDateToSecond(rawBase);
+        
+            if (base) {
+                return Array.from({ length: hours }, (_, i) => {
+                    const date = new Date(
+                        base.getTime() + i * 3600000
+                    );
+        
+                    return formatDateTime(date);
+                });
             }
+        
             return Array.from({ length: hours }, (_, i) => {
                 const day = Math.floor(i / 24) + 1;
                 const hour = String(i % 24).padStart(2, '0');
+        
                 return `Día ${day} ${hour}:00`;
             });
         }
