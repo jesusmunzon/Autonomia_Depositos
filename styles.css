@@ -56,3 +56,7 @@ body {
 .apexcharts-legend-marker {
     cursor: pointer !important;
 }
+
+
+/* KPI v18: 200 px, alineados a la izquierda */
+@media (min-width:768px){.kpi-card,#alc-kpi-autonomia-card,#ent-kpi-autonomia-card{width:200px!important;max-width:200px!important;}}
