@@ -18,6 +18,7 @@
             salida1: [],
             burguillos: []
         };
+        let pendingExcelImport = null;
 
         // Global State
         const state = {
@@ -237,11 +238,11 @@
             if (state.alcala.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
                 autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-amber-300 min-h-[120px] flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-cyan-300 bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
+                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-cyan-300 min-h-[120px] flex flex-col bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
@@ -380,11 +381,11 @@
             if (state.entronque.breachHour !== -1) {
                 autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
                 autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-amber-300 min-h-[120px] flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
+                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-indigo-300 min-h-[120px] flex flex-col bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
@@ -564,6 +565,7 @@
         // Modal Functions for Excel Data
         function openExcelModal(target) {
             activeModalTarget = target;
+            pendingExcelImport = null;
             const targetObj = target === 'alcala' ? state.alcala : state.entronque;
 
             tempHourlyProfile = {
@@ -638,40 +640,43 @@
         function handleExcelFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    const parsedNumbers = [];
-                    json.forEach(row => {
-                        row.forEach(cell => {
-                            const val = parseFloat(cell);
-                            if (!isNaN(val) && val > 0 && val < 10000) {
-                                parsedNumbers.push(val);
-                            }
-                        });
-                    });
-
-                    if (parsedNumbers.length >= 24) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i];
-                        }
-                    } else if (parsedNumbers.length > 0) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i % parsedNumbers.length];
-                        }
-                    }
-
+                    const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
+                    const wanted = activeModalTarget === 'alcala' ? 'alcala' : 'entronque';
+                    const sheetName = workbook.SheetNames.find(name => normalizeSheetName(name).includes(wanted)) || workbook.SheetNames[0];
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, raw: true, defval: null });
+                    const firstDate = rows.slice(1).map(row => normalizeExcelDate(row[0])).find(Boolean);
+                    const records = rows.slice(1).map(row => ({
+                        date: normalizeExcelDate(row[0]),
+                        entrada: Number(row[1]),
+                        salida1: Number(row[2]),
+                        burguillos: activeModalTarget === 'alcala' ? Number(row[3] || 0) : 0
+                    })).filter(record => record.date && Number.isFinite(record.entrada) && Number.isFinite(record.salida1));
+                    if (!records.length) throw new Error('No se encontraron filas válidas.');
+                    pendingExcelImport = {
+                        target: activeModalTarget,
+                        startDate: firstDate || records[0].date,
+                        entrada: records.map(r => r.entrada),
+                        salida1: records.map(r => r.salida1),
+                        burguillos: records.map(r => r.burguillos)
+                    };
+                    tempHourlyProfile.entrada = pendingExcelImport.entrada.slice(0, 24);
+                    tempHourlyProfile.salida1 = pendingExcelImport.salida1.slice(0, 24);
+                    tempHourlyProfile.burguillos = pendingExcelImport.burguillos.slice(0, 24);
                     renderModalTable();
-                } catch (err) {
-                    console.error('Error al leer Excel:', err);
+                } catch (error) {
+                    pendingExcelImport = null;
+                    console.error('Error al leer Excel:', error);
+                    alert(`No se pudo leer el Excel: ${error.message}`);
+                } finally {
+                    event.target.value = '';
                 }
+            };
+            reader.onerror = function() {
+                pendingExcelImport = null;
+                alert('No se pudo abrir el archivo seleccionado.');
             };
             reader.readAsArrayBuffer(file);
         }
@@ -690,24 +695,29 @@
 
         function saveModalChanges() {
             const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-            targetObj.entradaProfile = [...tempHourlyProfile.entrada];
-            targetObj.salida1Profile = [...tempHourlyProfile.salida1];
-            if (activeModalTarget === 'alcala') {
-                targetObj.burguillosProfile = [...tempHourlyProfile.burguillos];
+            if (pendingExcelImport && pendingExcelImport.target === activeModalTarget) {
+                targetObj.startDate = new Date(pendingExcelImport.startDate.getTime());
+                targetObj.startDate.setSeconds(0, 0);
+                targetObj.entradaProfile = [...pendingExcelImport.entrada];
+                targetObj.salida1Profile = [...pendingExcelImport.salida1];
+                if (activeModalTarget === 'alcala') targetObj.burguillosProfile = [...pendingExcelImport.burguillos];
+                targetObj.maxHours = Math.min(168, targetObj.entradaProfile.length);
+            } else {
+                targetObj.entradaProfile = [...tempHourlyProfile.entrada];
+                targetObj.salida1Profile = [...tempHourlyProfile.salida1];
+                if (activeModalTarget === 'alcala') targetObj.burguillosProfile = [...tempHourlyProfile.burguillos];
             }
             targetObj.isCustomData = true;
-
-            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / 24);
+            const newAvg = targetObj.entradaProfile.reduce((a, value) => a + value, 0) / targetObj.entradaProfile.length;
             targetObj.caudalEntradaMedio = newAvg;
-
             if (activeModalTarget === 'alcala') {
-                document.getElementById('alc-caudal-entrada').value = newAvg;
+                document.getElementById('alc-caudal-entrada').value = newAvg.toFixed(2);
                 updateAlcalaSimulation();
             } else {
-                document.getElementById('ent-caudal-entrada').value = newAvg;
+                document.getElementById('ent-caudal-entrada').value = newAvg.toFixed(2);
                 updateEntronqueSimulation();
             }
-
+            pendingExcelImport = null;
             closeExcelModal();
         }
 
