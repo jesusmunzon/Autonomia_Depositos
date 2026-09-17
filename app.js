@@ -294,7 +294,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -309,7 +309,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -381,7 +381,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -396,7 +396,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 470, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
