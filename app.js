@@ -241,7 +241,7 @@
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-amber-300 h-[125px] flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                aautonomyCardEl.className ='relative overflow-hidden p-4 rounded-2xl border-2 border-cyan-300 h-[125px] flex flex-col bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
@@ -384,7 +384,7 @@
             } else {
                 autonomyEl.innerText = '> 7 días';
                 autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
-                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-amber-300 h-[125px] flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
+                autonomyCardEl.className = 'relative overflow-hidden p-4 rounded-2xl border-2 border-indigo-300 h-[125px] flex flex-col bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
