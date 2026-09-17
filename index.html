@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="config.js?v=20260916-5"></script>
-    <link rel="stylesheet" href="styles.css?v=20260917-25">
+    <link rel="stylesheet" href="styles.css?v=20260917-26">
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
@@ -162,34 +162,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- KPI Summary Cards -->
-            <div class="kpi-row">
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase" id="alc-label-nivel-final">Nivel Final</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="alc-kpi-nivel-final">0.00 m</h3>
-                    <span class="text-xs leading-4 font-semibold mt-auto" id="alc-kpi-diff-nivel">+0.00 m vs inicio</span>
-                </div>
-                <div id="alc-kpi-autonomia-card" class="kpi-card kpi-card--autonomy kpi-card--cyan">
-                    <p class="text-sm leading-5 min-h-[40px] text-cyan-800 font-extrabold tracking-wide uppercase pr-12">AUTONOMÍA</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="alc-kpi-autonomia">&gt; 7 días</h3>
-                    <span class="text-xs leading-4 font-semibold text-cyan-700 mt-auto" id="alc-kpi-autonomia-status">No alcanza el nivel mínimo</span>
-                </div>
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase">Q MEDIO ENTRADA</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="alc-kpi-entrada-avg">0 l/s</h3>
-                    <span class="text-xs leading-4 text-slate-400 mt-auto" id="alc-kpi-horizon-text">Promedio simulado</span>
-                </div>
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase">Q SALIDA TOTAL</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="alc-kpi-salida-total">0 l/s</h3>
-                    <span class="text-xs leading-4 text-slate-400 mt-auto" id="alc-kpi-burguillos-status">Burguillos: ~14 l/s</span>
-                </div>
-            </div>
-
-
-
-            <!-- Two Main Charts Section -->
+<!-- Two Main Charts Section -->
             <div class="charts-row grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 <!-- Chart 1: Nivel -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -198,7 +171,7 @@
                             <i class="fa-solid fa-chart-line text-brand-500 mr-2"></i> Evolución de Nivel de Agua (Multidía)
                         </h3>
                     </div>
-                    <div class="h-[330px] relative w-full">
+                    <div class="h-[430px] relative w-full">
                         <div id="chart-alcala-nivel" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -211,7 +184,7 @@
                         </h3>
                         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
-                    <div class="h-[330px] relative w-full">
+                    <div class="h-[430px] relative w-full">
                         <div id="chart-alcala-caudales" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -223,9 +196,9 @@
                     <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-table-list text-brand-500 mr-2"></i>Resumen de hipótesis</h3>
                     <p class="text-xs text-slate-500 mt-1">Comparativa automática de la simulación con y sin derivación a Burguillos.</p>
                 </div>
-                <div class="overflow-x-auto"><table class="hypothesis-table"><thead><tr><th>Hipótesis</th><th>Nivel inicial</th><th>Nivel final</th><th>Q medio entrada</th><th>Q medio salida</th><th>Variación nivel</th><th>Autonomía</th><th>Mínimo alcanzado</th></tr></thead><tbody>
-                    <tr><td><span class="scenario-badge scenario-on">Con Burguillos</span></td><td id="hyp-con-inicio">-</td><td id="hyp-con-final">-</td><td id="hyp-con-entrada">-</td><td id="hyp-con-salida">-</td><td id="hyp-con-diff">-</td><td id="hyp-con-autonomia">-</td><td id="hyp-con-minimo">-</td></tr>
-                    <tr><td><span class="scenario-badge scenario-off">Sin Burguillos</span></td><td id="hyp-sin-inicio">-</td><td id="hyp-sin-final">-</td><td id="hyp-sin-entrada">-</td><td id="hyp-sin-salida">-</td><td id="hyp-sin-diff">-</td><td id="hyp-sin-autonomia">-</td><td id="hyp-sin-minimo">-</td></tr>
+                <div class="overflow-x-auto"><table class="hypothesis-table"><thead><tr><th>Hipótesis</th><th>Nivel inicial</th><th>Nivel mínimo de alerta</th><th>Q medio entrada</th><th>Q medio salida</th><th>Hora mínimo</th><th>Autonomía</th></tr></thead><tbody>
+                    <tr><td><span class="scenario-badge scenario-on">Con Burguillos</span></td><td id="hyp-con-inicio">-</td><td id="hyp-con-alerta">-</td><td id="hyp-con-entrada">-</td><td id="hyp-con-salida">-</td><td id="hyp-con-hora-minimo">-</td><td id="hyp-con-autonomia">-</td></tr>
+                    <tr><td><span class="scenario-badge scenario-off">Sin Burguillos</span></td><td id="hyp-sin-inicio">-</td><td id="hyp-sin-alerta">-</td><td id="hyp-sin-entrada">-</td><td id="hyp-sin-salida">-</td><td id="hyp-sin-hora-minimo">-</td><td id="hyp-sin-autonomia">-</td></tr>
                 </tbody></table></div>
             </section>
         </section>
@@ -322,32 +295,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- KPI Summary Cards -->
-            <div class="kpi-row">
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase">Nivel Final</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="ent-kpi-nivel-final">0.00 m</h3>
-                    <span class="text-xs leading-4 font-semibold mt-auto" id="ent-kpi-diff-nivel">+0.00 m vs inicio</span>
-                </div>
-                <div id="ent-kpi-autonomia-card" class="kpi-card kpi-card--autonomy kpi-card--indigo">
-                    <p class="text-sm leading-5 min-h-[40px] text-indigo-800 font-extrabold tracking-wide uppercase pr-12">AUTONOMÍA</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="ent-kpi-autonomia">&gt; 7 días</h3>
-                    <span class="text-xs leading-4 font-semibold text-indigo-700 mt-auto" id="ent-kpi-autonomia-status">No alcanza el nivel mínimo</span>
-                </div>
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase">Q MEDIO ENTRADA</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="ent-kpi-entrada-avg">0 l/s</h3>
-                    <span class="text-xs leading-4 text-slate-400 mt-auto">Promedio simulado</span>
-                </div>
-                <div class="glass-card kpi-card">
-                    <p class="text-sm leading-5 min-h-[40px] text-slate-600 font-bold tracking-wide uppercase">Q SALIDA TOTAL</p>
-                    <h3 class="text-3xl font-black mt-2 text-slate-900" id="ent-kpi-salida-avg">0 l/s</h3>
-                    <span class="text-xs leading-4 text-slate-400 mt-auto">Demanda atendida</span>
-                </div>
-            </div>
-
-            <!-- Two Main Charts Section -->
+<!-- Two Main Charts Section -->
             <div class="charts-row grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 <!-- Chart 1: Nivel -->
                 <div class="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -356,7 +304,7 @@
                             <i class="fa-solid fa-chart-line text-indigo-500 mr-2"></i> Evolución de Nivel de Agua (Entronque)
                         </h3>
                     </div>
-                    <div class="h-[330px] relative w-full">
+                    <div class="h-[430px] relative w-full">
                         <div id="chart-entronque-nivel" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -369,7 +317,7 @@
                         </h3>
                         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-semibold">l/s (Litros / seg)</span>
                     </div>
-                    <div class="h-[330px] relative w-full">
+                    <div class="h-[430px] relative w-full">
                         <div id="chart-entronque-caudales" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -465,6 +413,6 @@
         <p>© 2026 Plataforma de Simulación Hidráulica | Cálculo en tiempo real con factores de embalse 1329 y 1798</p>
     </footer>
 
-    <script src="app.js?v=20260917-25"></script>
+    <script src="app.js?v=20260917-26"></script>
 </body>
 </html>

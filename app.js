@@ -109,7 +109,7 @@
                 if (isChecked) {
                     inputEl.disabled = true;
                     inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-brand-500 focus:outline-none';
-                    const avg = (state.alcala.entradaProfile.reduce((a,b)=>a+b, 0) / 24).toFixed(2);
+                    const avg = (state.alcala.entradaProfile.reduce((a,b)=>a+b, 0) / state.alcala.entradaProfile.length).toFixed(2);
                     inputEl.value = avg;
                 } else {
                     inputEl.disabled = false;
@@ -125,7 +125,7 @@
                 if (isChecked) {
                     inputEl.disabled = true;
                     inputEl.className = 'w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 cursor-not-allowed focus:ring-2 focus:ring-indigo-500 focus:outline-none';
-                    const avg = (state.entronque.entradaProfile.reduce((a,b)=>a+b, 0) / 24).toFixed(2);
+                    const avg = (state.entronque.entradaProfile.reduce((a,b)=>a+b, 0) / state.entronque.entradaProfile.length).toFixed(2);
                     inputEl.value = avg;
                 } else {
                     inputEl.disabled = false;
@@ -205,77 +205,64 @@
 
         function calculateAlcalaScenario(withBurguillos) {
             let level = parseFloat(state.alcala.nivelInicio) || 0;
-            const initial = level, limit = parseFloat(state.alcala.nivelMinimo) || 0, factor = state.alcala.factor;
+            const initial = level;
+            const alertLevel = parseFloat(state.alcala.nivelMinimo) || 0;
+            const factor = state.alcala.factor;
             const hours = state.alcala.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
             const fixed = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
-            let minimum = level, breach = -1, inletSum = 0, outletSum = 0;
-            for (let i=0; i<hours; i++) {
-                const hod=i%24;
-                const inlet=state.alcala.useDefaultInlet ? (state.alcala.entradaProfile[i] ?? state.alcala.entradaProfile[hod] ?? 44.36) : fixed;
-                const outlet1=state.alcala.salida1Profile[i] ?? state.alcala.salida1Profile[hod] ?? 29.9;
-                const branch=withBurguillos ? (state.alcala.burguillosProfile[i] ?? state.alcala.burguillosProfile[hod] ?? 0) : 0;
-                const outlet=outlet1+branch; inletSum+=inlet; outletSum+=outlet;
-                level=(((inlet-outlet)*3.6)+(level*factor))/factor; minimum=Math.min(minimum,level);
-                if (breach===-1 && level<=limit) breach=i+1;
+            const labels = getTimeLabels('alcala', hours);
+            let breachIndex = -1;
+            let inletSum = 0;
+            let outletSum = 0;
+            for (let i = 0; i < hours; i++) {
+                const hod = i % 24;
+                const inlet = state.alcala.useDefaultInlet
+                    ? (state.alcala.entradaProfile[i] ?? state.alcala.entradaProfile[hod] ?? 44.36)
+                    : fixed;
+                const outlet1 = state.alcala.salida1Profile[i] ?? state.alcala.salida1Profile[hod] ?? 29.9;
+                const branch = withBurguillos
+                    ? (state.alcala.burguillosProfile[i] ?? state.alcala.burguillosProfile[hod] ?? 0)
+                    : 0;
+                const outlet = outlet1 + branch;
+                inletSum += inlet;
+                outletSum += outlet;
+                level = (((inlet - outlet) * 3.6) + (level * factor)) / factor;
+                if (breachIndex === -1 && level <= alertLevel) breachIndex = i;
             }
-            return {initial,final:level,inletAvg:inletSum/hours,outletAvg:outletSum/hours,diff:level-initial,autonomy:breach===-1?'> 7 días':formatAutonomy(breach),minimum};
+            return {
+                initial,
+                alertLevel,
+                inletAvg: inletSum / hours,
+                outletAvg: outletSum / hours,
+                autonomy: breachIndex === -1 ? '> 7 días' : formatAutonomy(breachIndex + 1),
+                minimumTime: breachIndex === -1 ? 'No alcanzado' : labels[breachIndex]
+            };
         }
+
         function updateAlcalaHypothesisSummary() {
-            const scenarios={con:calculateAlcalaScenario(true),sin:calculateAlcalaScenario(false)};
-            Object.entries(scenarios).forEach(([key,v])=>{
-                const put=(field,text)=>{const el=document.getElementById(`hyp-${key}-${field}`);if(el)el.innerText=text;};
-                put('inicio',`${v.initial.toFixed(2)} m`); put('final',`${v.final.toFixed(2)} m`);
-                put('entrada',`${Math.round(v.inletAvg)} l/s`); put('salida',`${Math.round(v.outletAvg)} l/s`);
-                put('diff',`${v.diff>=0?'+':''}${v.diff.toFixed(2)} m`); put('autonomia',v.autonomy); put('minimo',`${v.minimum.toFixed(2)} m`);
+            const scenarios = {
+                con: calculateAlcalaScenario(true),
+                sin: calculateAlcalaScenario(false)
+            };
+            Object.entries(scenarios).forEach(([key, value]) => {
+                const put = (field, text) => {
+                    const element = document.getElementById(`hyp-${key}-${field}`);
+                    if (element) element.innerText = text;
+                };
+                put('inicio', `${value.initial.toFixed(2)} m`);
+                put('alerta', `${value.alertLevel.toFixed(2)} m`);
+                put('entrada', `${value.inletAvg.toFixed(2)} l/s`);
+                put('salida', `${value.outletAvg.toFixed(2)} l/s`);
+                put('hora-minimo', value.minimumTime);
+                put('autonomia', value.autonomy);
             });
         }
+
         // Update UI for Alcalá
         function updateAlcalaUI() {
             calculateAlcala();
-            const sim = state.alcala.simulation;
-            const minNivelReq = parseFloat(state.alcala.nivelMinimo);
-
-            const nivelFinal = sim[sim.length - 1].nivel;
-            let minIndex = 0;
-            let nivelMinAlcanzado = sim[0].nivel;
-            for (let i = 1; i < sim.length; i++) {
-                if (sim[i].nivel < nivelMinAlcanzado) {
-                    nivelMinAlcanzado = sim[i].nivel;
-                    minIndex = i;
-                }
-            }
-
-            const entradaAvg = Math.round(sim.reduce((acc, s) => acc + s.entrada, 0) / sim.length);
-            const salidaTotalAvg = Math.round(sim.reduce((acc, s) => acc + s.salidaTotal, 0) / sim.length);
-            const burguillosAvg = Math.round(sim.reduce((acc, s) => acc + s.burguillos, 0) / sim.length);
-            const diffNivel = nivelFinal - state.alcala.nivelInicio;
-
-            document.getElementById('alc-label-nivel-final').innerText = 'Nivel Final';
-            document.getElementById('alc-kpi-nivel-final').innerText = `${nivelFinal.toFixed(2)} m`;
-            
-            const diffEl = document.getElementById('alc-kpi-diff-nivel');
-            diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
-            diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-
-            const autonomyEl = document.getElementById('alc-kpi-autonomia');
-            const autonomyStatusEl = document.getElementById('alc-kpi-autonomia-status');
-            const autonomyCardEl = document.getElementById('alc-kpi-autonomia-card');
-            if (state.alcala.breachHour !== -1) {
-                autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
-                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1]}`;
-                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
-            } else {
-                autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
-                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--cyan';
-            }
-            document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
-            document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
-            document.getElementById('alc-kpi-salida-total').innerText = `${salidaTotalAvg} l/s`;
-            document.getElementById('alc-kpi-burguillos-status').innerText = `Burguillos medio: ${state.alcala.burguillosOption === 'con' ? burguillosAvg + ' l/s' : '0 l/s'}`;
-
-            updateAlcalaHypothesisSummary();
             updateAlcalaCharts();
+            updateAlcalaHypothesisSummary();
         }
 
         function smoothFlowSeries(values, radius = 8) {
@@ -307,7 +294,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -322,7 +309,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -378,44 +365,6 @@
         // Update UI for Entronque
         function updateEntronqueUI() {
             calculateEntronque();
-            const sim = state.entronque.simulation;
-            const minNivelReq = parseFloat(state.entronque.nivelMinimo);
-
-            const nivelFinal = sim[sim.length - 1].nivel;
-            let minIndex = 0;
-            let nivelMinAlcanzado = sim[0].nivel;
-            for (let i = 1; i < sim.length; i++) {
-                if (sim[i].nivel < nivelMinAlcanzado) {
-                    nivelMinAlcanzado = sim[i].nivel;
-                    minIndex = i;
-                }
-            }
-
-            const entradaAvg = Math.round(sim.reduce((acc, s) => acc + s.entrada, 0) / sim.length);
-            const salidaAvg = Math.round(sim.reduce((acc, s) => acc + s.salida1, 0) / sim.length);
-            const diffNivel = nivelFinal - state.entronque.nivelInicio;
-
-            document.getElementById('ent-kpi-nivel-final').innerText = `${nivelFinal.toFixed(2)} m`;
-            
-            const diffEl = document.getElementById('ent-kpi-diff-nivel');
-            diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
-            diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-
-            const autonomyEl = document.getElementById('ent-kpi-autonomia');
-            const autonomyStatusEl = document.getElementById('ent-kpi-autonomia-status');
-            const autonomyCardEl = document.getElementById('ent-kpi-autonomia-card');
-            if (state.entronque.breachHour !== -1) {
-                autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
-                autonomyStatusEl.innerText = `Mínimo alcanzado: ${getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1]}`;
-                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
-            } else {
-                autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
-                autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--indigo';
-            }
-            document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
-            document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
-
             updateEntronqueCharts();
         }
 
@@ -432,7 +381,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
@@ -447,7 +396,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 330, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 430, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -637,7 +586,7 @@
             }
             targetObj.isCustomData = true;
 
-            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / 24);
+            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / targetObj.entradaProfile.length);
             targetObj.caudalEntradaMedio = newAvg;
 
             if (activeModalTarget === 'alcala') {
