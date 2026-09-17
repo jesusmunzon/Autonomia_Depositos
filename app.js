@@ -224,7 +224,7 @@
             const burguillosAvg = Math.round(sim.reduce((acc, s) => acc + s.burguillos, 0) / sim.length);
             const diffNivel = nivelFinal - state.alcala.nivelInicio;
 
-            document.getElementById('alc-label-nivel-final').innerText = 'NIVEL FINAL';
+            document.getElementById('alc-label-nivel-final').innerText = 'Nivel Final';
             document.getElementById('alc-kpi-nivel-final').innerText = `${nivelFinal.toFixed(2)} m`;
             
             const diffEl = document.getElementById('alc-kpi-diff-nivel');
@@ -240,7 +240,7 @@
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--cyan';
             }
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
@@ -383,7 +383,7 @@
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--warning';
             } else {
                 autonomyEl.innerText = '> 7 días';
-                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo';
                 autonomyCardEl.className = 'kpi-card kpi-card--autonomy kpi-card--indigo';
             }
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
