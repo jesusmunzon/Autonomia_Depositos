@@ -229,11 +229,27 @@
                 level = (((inlet - outlet) * 3.6) + (level * factor)) / factor;
                 if (breachIndex === -1 && level <= alertLevel) breachIndex = i;
             }
+            const averageHours = breachIndex === -1 ? hours : breachIndex + 1;
+            let periodInletSum = 0;
+            let periodOutletSum = 0;
+            level = initial;
+            for (let i = 0; i < averageHours; i++) {
+                const hod = i % 24;
+                const inlet = state.alcala.useDefaultInlet
+                    ? (state.alcala.entradaProfile[i] ?? state.alcala.entradaProfile[hod] ?? 44.36)
+                    : fixed;
+                const outlet1 = state.alcala.salida1Profile[i] ?? state.alcala.salida1Profile[hod] ?? 29.9;
+                const branch = withBurguillos
+                    ? (state.alcala.burguillosProfile[i] ?? state.alcala.burguillosProfile[hod] ?? 0)
+                    : 0;
+                periodInletSum += inlet;
+                periodOutletSum += outlet1 + branch;
+            }
             return {
                 initial,
                 alertLevel,
-                inletAvg: inletSum / hours,
-                outletAvg: outletSum / hours,
+                inletAvg: periodInletSum / averageHours,
+                outletAvg: periodOutletSum / averageHours,
                 autonomy: breachIndex === -1 ? '> 7 días' : formatAutonomy(breachIndex + 1),
                 minimumTime: breachIndex === -1 ? 'No alcanzado' : labels[breachIndex]
             };
