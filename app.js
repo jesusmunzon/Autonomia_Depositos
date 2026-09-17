@@ -60,35 +60,57 @@
             }
         };
 
-        function normalizeExcelDate(value) {
-            let date = null;
-            if (value instanceof Date && !Number.isNaN(value.getTime())) {
-                date = new Date(value.getTime());
-            } else if (typeof value === 'number') {
-                const parsed = XLSX.SSF.parse_date_code(value);
-                if (parsed) date = new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H || 0, parsed.M || 0, Math.floor(parsed.S || 0), 0);
-            } else if (typeof value === 'string' && value.trim()) {
-                const direct = new Date(value.trim());
-                if (!Number.isNaN(direct.getTime())) date = direct;
-            }
-            if (!date || Number.isNaN(date.getTime())) return null;
-            date.setMilliseconds(0);
-            return date;
+        function formatDateTime(value) {
+            if (!value) return '';
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+            return new Intl.DateTimeFormat('es-ES', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).format(date).replace(',', '');
         }
 
-        function formatDateTime(value) {
-            const date = normalizeExcelDate(value);
-            if (!date) return '';
-            const pad = number => String(number).padStart(2, '0');
-            return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        function parseExcelDate(value) {
+            if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+            if (typeof value === 'number') {
+                const parsed = XLSX.SSF.parse_date_code(value);
+                if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, Math.floor(parsed.S));
+            }
+            if (typeof value === 'string' && value.trim()) {
+                const direct = new Date(value);
+                if (!Number.isNaN(direct.getTime())) return direct;
+                const match = value.trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+                if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0), Number(match[6] || 0));
+            }
+            return null;
         }
 
         function getTimeLabels(target, hours) {
-            const base = state[target].startDate;
+            const targetState = state[target];
+            const base = targetState.startDate || (targetState.timestamps && targetState.timestamps[0]);
             if (base instanceof Date && !Number.isNaN(base.getTime())) {
-                return Array.from({ length: hours }, (_, i) => formatDateTime(new Date(base.getTime() + i * 3600000)));
+                return Array.from({ length: hours }, (_, i) =>
+                    formatDateTime(new Date(base.getTime() + i * 3600000))
+                );
             }
-            return Array.from({ length: hours }, (_, i) => `Día ${Math.floor(i / 24) + 1} ${String(i % 24).padStart(2, '0')}:00`);
+            return Array.from({ length: hours }, (_, i) => {
+                const day = Math.floor(i / 24) + 1;
+                const hour = String(i % 24).padStart(2, '0');
+                return `Día ${day} ${hour}:00`;
+            });
+        }
+
+        function formatAutonomy(hours) {
+            if (hours === null || hours === undefined || hours >= 168) return '> 7 días';
+            const totalMinutes = Math.round(hours * 60);
+            const days = Math.floor(totalMinutes / 1440);
+            const remainingHours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+            const parts = [];
+            if (days) parts.push(`${days} ${days === 1 ? 'día' : 'días'}`);
+            if (remainingHours) parts.push(`${remainingHours} h`);
+            if (minutes) parts.push(`${minutes} min`);
+            return parts.length ? parts.join(' ') : '0 h';
         }
 
         // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
@@ -137,7 +159,7 @@
             const useExcelProfile = state.alcala.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.alcala.nivelMinimo) || 0;
-            const maxHours = state.alcala.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
+            const maxHours = state.alcala.timestamps.length ? Math.min(168, state.alcala.timestamps.length) : state.alcala.maxHours;
             const labels = getTimeLabels('alcala', maxHours);
             let breachHour = -1;
 
@@ -171,7 +193,7 @@
             const useExcelProfile = state.entronque.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.entronque.nivelMinimo) || 0;
-            const maxHours = state.entronque.startDate ? Math.min(168, state.entronque.entradaProfile.length) : state.entronque.maxHours;
+            const maxHours = state.entronque.timestamps.length ? Math.min(168, state.entronque.timestamps.length) : state.entronque.maxHours;
             const labels = getTimeLabels('entronque', maxHours);
             let breachHour = -1;
 
@@ -223,20 +245,19 @@
             diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
             diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            const minEl = document.getElementById('alc-kpi-nivel-min');
-            minEl.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-            minEl.className = `text-2xl font-bold mt-1 ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-
-            const statusMinEl = document.getElementById('alc-kpi-status-min');
-            if (nivelMinAlcanzado < minNivelReq) {
-                const minTimeLabel = sim[minIndex].hora;
-                statusMinEl.innerText = `¡ALERTA MÍNIMO! (${minTimeLabel})`;
-                statusMinEl.className = 'text-xs font-bold text-rose-600 animate-pulse';
+            const autonomyEl = document.getElementById('alc-kpi-autonomia');
+            const autonomyStatusEl = document.getElementById('alc-kpi-autonomia-status');
+            const autonomyCardEl = document.getElementById('alc-kpi-autonomia-card');
+            if (state.alcala.breachHour !== -1) {
+                autonomyEl.innerText = formatAutonomy(state.alcala.breachHour);
+                const breachLabel = getTimeLabels('alcala', state.alcala.maxHours)[state.alcala.breachHour - 1];
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${breachLabel}`;
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
-                statusMinEl.innerText = 'Nivel Seguro en Horizonte';
-                statusMinEl.className = 'text-xs font-semibold text-emerald-600';
+                autonomyEl.innerText = '> 7 días';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-cyan-300 bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-md';
             }
-
             document.getElementById('alc-kpi-horizon-text').innerText = `Promedio en ${state.alcala.visibleHours} h`;
             document.getElementById('alc-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('alc-kpi-salida-total').innerText = `${salidaTotalAvg} l/s`;
@@ -273,17 +294,14 @@
             const maxIndex = niveles.indexOf(maxValue);
             const minIndex = niveles.indexOf(minValue);
 
-            document.getElementById('alc-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
-            document.getElementById('alc-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
-
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#0284c7'],
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
@@ -292,7 +310,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -309,7 +327,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -371,20 +389,19 @@
             diffEl.innerText = `${diffNivel >= 0 ? '+' : ''}${diffNivel.toFixed(2)} m vs inicio`;
             diffEl.className = `text-xs font-semibold ${diffNivel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            const minEl = document.getElementById('ent-kpi-nivel-min');
-            minEl.innerText = `${nivelMinAlcanzado.toFixed(2)} m`;
-            minEl.className = `text-2xl font-bold mt-1 ${nivelMinAlcanzado < minNivelReq ? 'text-rose-600' : 'text-slate-800'}`;
-
-            const statusMinEl = document.getElementById('ent-kpi-status-min');
-            if (nivelMinAlcanzado < minNivelReq) {
-                const minTimeLabel = sim[minIndex].hora;
-                statusMinEl.innerText = `¡ALERTA MÍNIMO! (${minTimeLabel})`;
-                statusMinEl.className = 'text-xs font-bold text-rose-600 animate-pulse';
+            const autonomyEl = document.getElementById('ent-kpi-autonomia');
+            const autonomyStatusEl = document.getElementById('ent-kpi-autonomia-status');
+            const autonomyCardEl = document.getElementById('ent-kpi-autonomia-card');
+            if (state.entronque.breachHour !== -1) {
+                autonomyEl.innerText = formatAutonomy(state.entronque.breachHour);
+                const breachLabel = getTimeLabels('entronque', state.entronque.maxHours)[state.entronque.breachHour - 1];
+                autonomyStatusEl.innerText = `Mínimo alcanzado: ${breachLabel}`;
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md';
             } else {
-                statusMinEl.innerText = 'Nivel Seguro en Horizonte';
-                statusMinEl.className = 'text-xs font-semibold text-emerald-600';
+                autonomyEl.innerText = '> 7 días';
+                autonomyStatusEl.innerText = 'No alcanza el nivel mínimo en el periodo';
+                autonomyCardEl.className = 'relative overflow-hidden p-5 rounded-2xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 via-white to-violet-50 shadow-md';
             }
-
             document.getElementById('ent-kpi-entrada-avg').innerText = `${entradaAvg} l/s`;
             document.getElementById('ent-kpi-salida-avg').innerText = `${salidaAvg} l/s`;
 
@@ -403,17 +420,14 @@
             const maxIndex = niveles.indexOf(maxValue);
             const minIndex = niveles.indexOf(minValue);
 
-            document.getElementById('ent-chart-max').innerText = `Máx: ${maxValue.toFixed(2)} m (${labels[maxIndex]})`;
-            document.getElementById('ent-chart-min').innerText = `Mín: ${minValue.toFixed(2)} m (${labels[minIndex]})`;
-
             const levelOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }],
                 colors: ['#6366f1'],
                 stroke: { curve: 'smooth', width: 3 },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: false },
@@ -422,7 +436,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 380, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: 450, width: '100%', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -439,7 +453,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -45, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: 10, labels: { rotate: -90, hideOverlappingLabels: true, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => `${v.toFixed(1)} l/s`, style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -644,24 +658,32 @@
             reader.onload = function(e) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
-                    const wanted = activeModalTarget === 'alcala' ? 'alcala' : 'entronque';
-                    const sheetName = workbook.SheetNames.find(name => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(wanted)) || workbook.SheetNames[0];
+                    const preferredName = activeModalTarget === 'alcala' ? 'Alcala del Rio' : 'Entronque';
+                    const sheetName = workbook.SheetNames.find(name =>
+                        name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(
+                            preferredName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                        )
+                    ) || workbook.SheetNames[0];
                     const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, raw: true, defval: null });
-                    const firstDate = rows.slice(1).map(row => normalizeExcelDate(row[0])).find(Boolean);
+                    const allDates = rows.slice(1).map(row => parseExcelDate(row[0])).filter(Boolean);
+                    const initialDate = allDates.length ? allDates[0] : null;
                     const records = rows.slice(1).map(row => ({
-                        date: normalizeExcelDate(row[0]),
+                        date: parseExcelDate(row[0]),
                         entrada: Number(row[1]),
                         salida1: Number(row[2]),
                         burguillos: activeModalTarget === 'alcala' ? Number(row[3] || 0) : 0
                     })).filter(record => record.date && Number.isFinite(record.entrada) && Number.isFinite(record.salida1));
-                    if (!records.length) throw new Error('No se encontraron filas válidas con fecha, entrada y salida.');
+
+                    if (!records.length) throw new Error('No se encontraron filas válidas con fecha y caudales.');
+                    records.sort((a, b) => a.date - b.date);
                     const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-                    targetObj.startDate = firstDate || records[0].date;
-                    targetObj.startDate.setMilliseconds(0);
+                    targetObj.startDate = initialDate || records[0].date;
+                    targetObj.timestamps = Array.from({ length: Math.min(168, records.length + 1) }, (_, i) =>
+                        new Date(targetObj.startDate.getTime() + i * 3600000)
+                    );
                     targetObj.entradaProfile = records.map(record => record.entrada);
                     targetObj.salida1Profile = records.map(record => record.salida1);
                     if (activeModalTarget === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
-                    targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000));
                     targetObj.maxHours = Math.min(168, records.length);
                     targetObj.isCustomData = true;
                     tempHourlyProfile.entrada = records.slice(0, 24).map(record => record.entrada);
@@ -671,14 +693,10 @@
                 } catch (err) {
                     console.error('Error al leer Excel:', err);
                     alert(`No se pudo leer el Excel: ${err.message}`);
-                } finally {
-                    event.target.value = '';
                 }
             };
-            reader.onerror = () => alert('No se pudo abrir el archivo seleccionado.');
             reader.readAsArrayBuffer(file);
         }
-
         function resetToDefaultProfile() {
             if (activeModalTarget === 'alcala') {
                 tempHourlyProfile.entrada = [...PATTERN_ENTRADA_ALCALA_DEFAULT];
