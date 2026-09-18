@@ -23,7 +23,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 }
 
 @media print {
-    html, body {
+    html,
+    body {
         width: 210mm !important;
         height: 297mm !important;
         margin: 0 !important;
@@ -34,7 +35,11 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         print-color-adjust: exact !important;
     }
 
-    header, footer, #excel-modal, .no-print, .controls-panel {
+    header,
+    footer,
+    #excel-modal,
+    .no-print,
+    .controls-panel {
         display: none !important;
     }
 
@@ -45,7 +50,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         height: 297mm !important;
         max-width: none !important;
         margin: 0 !important;
-        padding: 4mm !important;
+        padding: 5mm !important;
         overflow: hidden !important;
         box-sizing: border-box !important;
     }
@@ -58,54 +63,81 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     body.print-alcala #tab-alcala,
     body.print-entronque #tab-entronque {
         display: block !important;
-        width: 202mm !important;
-        height: 289mm !important;
+        width: 200mm !important;
+        height: 287mm !important;
         margin: 0 !important;
         overflow: hidden !important;
     }
 
     .print-report-title {
         display: block !important;
-        height: 13mm !important;
-        margin: 0 0 2mm !important;
-        padding: 2.5mm 4mm !important;
+        height: 17mm !important;
+        margin: 0 0 3mm !important;
+        padding: 3mm 4mm !important;
         box-sizing: border-box !important;
-        border-radius: 2mm !important;
+        border-radius: 2.5mm !important;
         background: linear-gradient(135deg, #0f172a, #075985) !important;
         color: #ffffff !important;
     }
 
-    .print-report-title h1 { margin: 0 !important; font-size: 12pt !important; line-height: 1.05 !important; }
-    .print-report-title p { margin: .8mm 0 0 !important; font-size: 6.8pt !important; color: #dbeafe !important; }
-
-    .charts-row {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        width: 202mm !important;
-        gap: 2mm !important;
+    .print-report-title h1 {
         margin: 0 !important;
+        font-size: 14pt !important;
+        line-height: 1.1 !important;
     }
 
-    .charts-row > div {
-        width: 202mm !important;
-        height: 101mm !important;
-        min-height: 101mm !important;
+    .print-report-title p {
+        margin: 1mm 0 0 !important;
+        font-size: 7pt !important;
+        color: #dbeafe !important;
+    }
+
+    /* Las dos gráficas permanecen en una única fila */
+    .charts-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        column-gap: 3mm !important;
+        width: 200mm !important;
+        height: 188mm !important;
         margin: 0 !important;
-        padding: 2mm 2.5mm 1mm !important;
+        align-items: stretch !important;
+    }
+
+    /* Se aumenta conjuntamente el marco y la gráfica */
+    .charts-row > div {
+        width: 98.5mm !important;
+        height: 188mm !important;
+        min-height: 188mm !important;
+        margin: 0 !important;
+        padding: 3mm !important;
         box-sizing: border-box !important;
-        border-radius: 2mm !important;
+        border-radius: 2.5mm !important;
         overflow: hidden !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
 
-    .charts-row > div > div:first-child { margin-bottom: 0 !important; }
-    .charts-row h3 { font-size: 8.5pt !important; line-height: 1.05 !important; }
+    .charts-row > div > div:first-child {
+        min-height: 10mm !important;
+        margin-bottom: 1mm !important;
+        align-items: flex-start !important;
+    }
+
+    .charts-row h3 {
+        max-width: 72mm !important;
+        font-size: 8.5pt !important;
+        line-height: 1.15 !important;
+    }
+
+    .charts-row > div > div:first-child > span {
+        font-size: 6pt !important;
+        padding: 1mm !important;
+    }
 
     .chart-shell {
-        width: 197mm !important;
-        height: 93mm !important;
-        min-height: 93mm !important;
+        width: 92.5mm !important;
+        height: 171mm !important;
+        min-height: 171mm !important;
         overflow: hidden !important;
     }
 
@@ -113,20 +145,23 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     .chart-shell .apexcharts-svg {
         width: 100% !important;
         max-width: 100% !important;
-        height: 360px !important;
-        max-height: 360px !important;
-        overflow: visible !important;
+        max-height: 610px !important;
     }
 
-    .apexcharts-xaxis-texts-g text { font-size: 5.5px !important; }
-    .apexcharts-legend { overflow: visible !important; max-height: none !important; padding: 0 !important; }
-    .apexcharts-legend-text { font-size: 7px !important; }
+    .apexcharts-xaxis-texts-g text {
+        font-size: 5.5px !important;
+    }
+
+    .apexcharts-yaxis-texts-g text,
+    .apexcharts-legend-text {
+        font-size: 6.5px !important;
+    }
 
     .hypothesis-summary {
-        width: 202mm !important;
+        width: 200mm !important;
         height: auto !important;
         min-height: 0 !important;
-        margin: 1.5mm 0 0 !important;
+        margin: 2mm 0 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
         box-sizing: border-box !important;
@@ -137,58 +172,62 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     .hypothesis-summary > div:first-child {
         height: auto !important;
         min-height: 0 !important;
-        padding: 1.4mm 2.5mm !important;
+        padding: 2.2mm 3mm !important;
         box-sizing: border-box !important;
     }
 
-    .hypothesis-summary h3 { margin: 0 !important; font-size: 8pt !important; }
-    .hypothesis-summary p { margin: .6mm 0 0 !important; font-size: 6pt !important; }
-    .hypothesis-summary .overflow-x-auto { overflow: hidden !important; }
+    .hypothesis-summary h3 {
+        margin: 0 !important;
+        font-size: 8.5pt !important;
+    }
 
-    .hypothesis-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
-    .hypothesis-table th, .hypothesis-table td {
-        padding: 1mm .6mm !important;
-        font-size: 5.7pt !important;
-        line-height: 1.05 !important;
+    .hypothesis-summary p {
+        margin: .8mm 0 0 !important;
+        font-size: 6.3pt !important;
+    }
+
+    .hypothesis-summary .overflow-x-auto {
+        overflow: hidden !important;
+    }
+
+    .hypothesis-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .hypothesis-table th,
+    .hypothesis-table td {
+        padding: 1.8mm .7mm !important;
+        font-size: 5.9pt !important;
+        line-height: 1.1 !important;
         white-space: normal !important;
     }
-    .scenario-badge { min-width: 0 !important; padding: .7mm !important; font-size: 5.7pt !important; }
+
+    .scenario-badge {
+        min-width: 0 !important;
+        padding: .8mm !important;
+        font-size: 5.9pt !important;
+    }
 
     .apexcharts-toolbar,
-    .apexcharts-menu,
-    .apexcharts-menu-icon,
+    .apexcharts-selection-rect,
     .apexcharts-zoom-icon,
     .apexcharts-pan-icon,
-    .apexcharts-reset-icon,
-    .apexcharts-selection-icon,
-    .apexcharts-xaxistooltip,
-    .apexcharts-yaxistooltip,
-    .apexcharts-scrollbar,
-    .apexcharts-selection-rect,
-    .apexcharts-zoom-rect,
-    [class*="apexcharts-scrollbar"] {
+    .apexcharts-reset-icon {
         display: none !important;
-        visibility: hidden !important;
     }
 }
 
+
+/* v38: fecha y hora del eje X siempre en una sola linea */
 @media print {
-    .charts-row .apexcharts-legend {
-        bottom: 3mm !important;
-        top: auto !important;
-        height: 5mm !important;
-        align-items: center !important;
-        overflow: visible !important;
+    .apexcharts-xaxis-texts-g text,
+    .apexcharts-xaxis-label {
+        white-space: nowrap !important;
     }
 
-    .charts-row .apexcharts-xaxis-texts-g text {
-        font-size: 6px !important;
-    }
-
-    .hypothesis-summary,
-    .hypothesis-summary .overflow-x-auto,
-    .hypothesis-summary table {
-        height: auto !important;
-        min-height: 0 !important;
+    .apexcharts-xaxis-texts-g text tspan {
+        white-space: nowrap !important;
     }
 }
