@@ -100,8 +100,30 @@
         }
 
         function getInletProfileAverage(target){const s=state[target],p=s.entradaProfile||[],n=s.startDate?Math.min(168,p.length):Math.min(s.maxHours||p.length,p.length);return n?p.slice(0,n).reduce((x,v)=>x+Number(v||0),0)/n:(s.caudalEntradaMedio||0);}
+
+        function syncManeuverDateInput(target) {
+            const id = target === 'alcala' ? 'alc-fecha-inicio' : 'ent-fecha-inicio';
+            const input = document.getElementById(id);
+            const date = state[target].startDate;
+            if (!input || !(date instanceof Date) || Number.isNaN(date.getTime())) return;
+            const pad = value => String(value).padStart(2, '0');
+            input.value = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
         function setManeuverStart(target){const id=target==='alcala'?'alc-fecha-inicio':'ent-fecha-inicio',v=document.getElementById(id).value,d=v?new Date(v):null;state[target].startDate=d&&!Number.isNaN(d.getTime())?d:null;target==='alcala'?updateAlcalaSimulation():updateEntronqueSimulation();}
-        function printTab(target){document.body.className=document.body.className.replace(/print-(alcala|entronque)/g,'').trim()+` print-${target}`;const old=document.title;document.title=`Informe hidráulico - ${target==='alcala'?'Alcalá del Río':'Entronque'}`;setTimeout(()=>{window.print();document.title=old;document.body.classList.remove(`print-${target}`);},200);}
+        function printTab(target) {
+            document.body.classList.remove('print-alcala', 'print-entronque');
+            document.body.classList.add(`print-${target}`);
+            const previousTitle = document.title;
+            document.title = `Informe hidráulico - ${target === 'alcala' ? 'Alcalá del Río' : 'Entronque'}`;
+            if (target === 'alcala') updateAlcalaCharts(); else updateEntronqueCharts();
+            setTimeout(() => window.print(), 350);
+            setTimeout(() => {
+                document.title = previousTitle;
+                document.body.classList.remove(`print-${target}`);
+                if (target === 'alcala') updateAlcalaCharts(); else updateEntronqueCharts();
+            }, 1200);
+        }
 
         // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
         function toggleInletMode(target) {
@@ -241,13 +263,13 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#0284c7','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
@@ -256,7 +278,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -273,7 +295,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -324,13 +346,13 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
@@ -339,7 +361,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -356,7 +378,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -605,6 +627,7 @@
             const targetObj = state[target];
             targetObj.startDate = new Date(firstDate.getTime());
             targetObj.startDate.setMilliseconds(0);
+            syncManeuverDateInput(target);
             targetObj.entradaProfile = records.map(record => record.entrada);
             targetObj.salida1Profile = records.map(record => record.salida1);
             if (target === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
@@ -628,6 +651,8 @@
                 });
                 const loadedAlcala = applyWorkbookSheet(workbook, 'alcala');
                 const loadedEntronque = applyWorkbookSheet(workbook, 'entronque');
+                syncManeuverDateInput('alcala');
+                syncManeuverDateInput('entronque');
                 if (!loadedAlcala && !loadedEntronque) {
                     throw new Error('No se encontraron las hojas esperadas.');
                 }

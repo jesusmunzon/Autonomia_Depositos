@@ -18,26 +18,28 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 .print-report-title { display: none; }
 @media (min-width: 768px) { .charts-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; } }
 @media print {
-  @page { size: A4 portrait; margin: 7mm; }
-  html, body { width: 210mm; height: 297mm; background: #fff !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  @page { size: 210mm 297mm; margin: 0; }
+  html, body { width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   header, footer, #excel-modal, .no-print, .controls-panel { display: none !important; }
-  main { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  main { position: absolute !important; inset: 0 !important; width: 210mm !important; height: 297mm !important; max-width: none !important; margin: 0 !important; padding: 6mm !important; overflow: hidden !important; box-sizing: border-box !important; }
   body.print-alcala #tab-entronque, body.print-entronque #tab-alcala { display: none !important; }
-  body.print-alcala #tab-alcala, body.print-entronque #tab-entronque { display: block !important; }
-  .print-report-title { display: block !important; margin: 0 0 4mm; padding: 4mm 5mm; border-radius: 3mm; background: linear-gradient(135deg,#0f172a,#075985); color: #fff; }
-  .print-report-title h1 { margin: 0; font-size: 16pt; font-weight: 800; }
-  .print-report-title p { margin: 1mm 0 0; font-size: 8pt; color: #dbeafe; }
-  .charts-row { display: grid !important; grid-template-columns: 1fr !important; gap: 3mm !important; }
-  .charts-row > div { height: 78mm !important; padding: 3mm !important; border-radius: 2.5mm !important; overflow: hidden !important; break-inside: avoid; }
-  .charts-row h3 { font-size: 9pt !important; }
-  .chart-shell { height: 65mm !important; overflow: hidden !important; }
-  .chart-shell .apexcharts-canvas, .chart-shell .apexcharts-svg { height: 65mm !important; max-height: 65mm !important; }
-  .apexcharts-xaxis-texts-g text { font-size: 6.5px !important; }
-  .hypothesis-summary { margin-top: 3mm !important; break-inside: avoid; }
-  .hypothesis-summary > div:first-child { padding: 2.5mm 3mm !important; }
-  .hypothesis-summary h3 { font-size: 9pt !important; }
-  .hypothesis-summary p { font-size: 6.5pt !important; }
-  .hypothesis-table { min-width: 0 !important; table-layout: fixed !important; }
-  .hypothesis-table th, .hypothesis-table td { padding: 1.8mm .8mm !important; font-size: 6.2pt !important; white-space: normal !important; line-height: 1.15 !important; }
-  .scenario-badge { min-width: 0 !important; padding: 1mm !important; font-size: 6.2pt !important; }
+  body.print-alcala #tab-alcala, body.print-entronque #tab-entronque { display: block !important; height: 285mm !important; overflow: hidden !important; }
+  .print-report-title { display: block !important; height: 18mm !important; box-sizing: border-box !important; margin: 0 0 3mm !important; padding: 3mm 4mm !important; border-radius: 2.5mm !important; background: linear-gradient(135deg,#0f172a,#075985) !important; color: #fff !important; }
+  .print-report-title h1 { margin: 0 !important; font-size: 14pt !important; line-height: 1.1 !important; }
+  .print-report-title p { margin: 1mm 0 0 !important; font-size: 7pt !important; color: #dbeafe !important; }
+  .charts-row { display: grid !important; grid-template-columns: 1fr !important; gap: 2.5mm !important; margin: 0 !important; }
+  .charts-row > div { height: 73mm !important; min-height: 73mm !important; box-sizing: border-box !important; padding: 2.5mm !important; border-radius: 2.5mm !important; overflow: hidden !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+  .charts-row > div > div:first-child { margin-bottom: 1mm !important; }
+  .charts-row h3 { font-size: 8.5pt !important; line-height: 1.1 !important; }
+  .chart-shell { height: 64mm !important; min-height: 64mm !important; overflow: hidden !important; }
+  .chart-shell .apexcharts-canvas, .chart-shell .apexcharts-svg { height: 64mm !important; max-height: 64mm !important; }
+  .apexcharts-xaxis-texts-g text { font-size: 5.5px !important; }
+  .apexcharts-legend-text { font-size: 7px !important; }
+  .hypothesis-summary { height: 75mm !important; box-sizing: border-box !important; margin: 2.5mm 0 0 !important; overflow: hidden !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+  .hypothesis-summary > div:first-child { height: 17mm !important; box-sizing: border-box !important; padding: 2.5mm 3mm !important; }
+  .hypothesis-summary h3 { margin: 0 !important; font-size: 9pt !important; }
+  .hypothesis-summary p { margin-top: 1mm !important; font-size: 6.5pt !important; }
+  .hypothesis-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+  .hypothesis-table th, .hypothesis-table td { padding: 2mm .7mm !important; font-size: 6pt !important; line-height: 1.1 !important; white-space: normal !important; }
+  .scenario-badge { min-width: 0 !important; padding: 1mm !important; font-size: 6pt !important; }
 }
