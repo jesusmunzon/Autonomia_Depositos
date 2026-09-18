@@ -186,7 +186,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         /*
          * Baja la leyenda sin mover el área de trazado.
          */
-        transform: translateY(70px) !important;
+        transform: translateY(28px) !important;
 
         /*
          * Mantiene los elementos centrados y visibles.
