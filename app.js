@@ -302,10 +302,17 @@
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
                     show: true,
-                    position: 'top',
+                    position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    offsetY: 0
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -362,10 +369,17 @@
                 },
                 legend: {
                     show: true,
-                    position: 'top',
+                    position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    offsetY: 0
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -413,10 +427,17 @@
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
                     show: true,
-                    position: 'top',
+                    position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    offsetY: 0
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -474,10 +495,17 @@
                 },
                 legend: {
                     show: true,
-                    position: 'top',
+                    position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    offsetY: 0
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
                 },
                 grid: {
                     borderColor: '#e2e8f0',
