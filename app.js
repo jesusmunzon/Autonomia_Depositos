@@ -274,7 +274,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#0284c7','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -283,13 +283,13 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -329,7 +329,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 
@@ -357,7 +357,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -366,13 +366,13 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -413,7 +413,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 
