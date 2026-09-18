@@ -111,18 +111,27 @@
         }
 
         function setManeuverStart(target){const id=target==='alcala'?'alc-fecha-inicio':'ent-fecha-inicio',v=document.getElementById(id).value,d=v?new Date(v):null;state[target].startDate=d&&!Number.isNaN(d.getTime())?d:null;target==='alcala'?updateAlcalaSimulation():updateEntronqueSimulation();}
-        function printTab(target) {
+        async function printTab(target) {
             document.body.classList.remove('print-alcala', 'print-entronque');
             document.body.classList.add(`print-${target}`);
             const previousTitle = document.title;
             document.title = `Informe hidráulico - ${target === 'alcala' ? 'Alcalá del Río' : 'Entronque'}`;
-            if (target === 'alcala') updateAlcalaCharts(); else updateEntronqueCharts();
-            setTimeout(() => window.print(), 350);
+
+            if (target === 'alcala') {
+                updateAlcalaCharts();
+            } else {
+                updateEntronqueCharts();
+            }
+
+            // ApexCharts necesita terminar el render específico de impresión.
+            await new Promise(resolve => setTimeout(resolve, 900));
+            window.print();
+
             setTimeout(() => {
                 document.title = previousTitle;
                 document.body.classList.remove(`print-${target}`);
                 if (target === 'alcala') updateAlcalaCharts(); else updateEntronqueCharts();
-            }, 1200);
+            }, 900);
         }
 
         // Switch between Excel Profile (Checked) and Constant Manual Input (Unchecked)
@@ -234,6 +243,8 @@
 
         // Update UI for Alcalá
         function updateAlcalaUI(){calculateAlcala();updateAlcalaCharts();updateAlcalaHypothesisSummary();}
+        function isPrintMode() { return document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque'); }
+
         function smoothFlowSeries(values, radius = 8) {
             if (!Array.isArray(values) || values.length === 0) return [];
             const smoothPass = input => input.map((value, index) => {
@@ -263,22 +274,22 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#0284c7','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -295,7 +306,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -318,7 +329,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 
@@ -346,22 +357,22 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 255 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 245 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -378,7 +389,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque') ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: '10px', colors: '#64748b' } }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -402,7 +413,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '12px', fontWeight: 600 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -8 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 

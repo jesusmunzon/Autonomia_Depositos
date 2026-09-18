@@ -28,11 +28,10 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
   .print-report-title h1 { margin: 0 !important; font-size: 14pt !important; line-height: 1.1 !important; }
   .print-report-title p { margin: 1mm 0 0 !important; font-size: 7pt !important; color: #dbeafe !important; }
   .charts-row { display: grid !important; grid-template-columns: 1fr !important; gap: 2.5mm !important; margin: 0 !important; }
-  .charts-row > div { height: 73mm !important; min-height: 73mm !important; box-sizing: border-box !important; padding: 2.5mm !important; border-radius: 2.5mm !important; overflow: hidden !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+  .charts-row > div { height: 72mm !important; min-height: 72mm !important; box-sizing: border-box !important; padding: 2.5mm !important; border-radius: 2.5mm !important; overflow: hidden !important; break-inside: avoid !important; page-break-inside: avoid !important; }
   .charts-row > div > div:first-child { margin-bottom: 1mm !important; }
   .charts-row h3 { font-size: 8.5pt !important; line-height: 1.1 !important; }
-  .chart-shell { height: 64mm !important; min-height: 64mm !important; overflow: hidden !important; }
-  .chart-shell .apexcharts-canvas, .chart-shell .apexcharts-svg { height: 64mm !important; max-height: 64mm !important; }
+  .chart-shell { height: 65mm !important; min-height: 65mm !important; overflow: hidden !important; }
   .apexcharts-xaxis-texts-g text { font-size: 5.5px !important; }
   .apexcharts-legend-text { font-size: 7px !important; }
   .hypothesis-summary { height: 75mm !important; box-sizing: border-box !important; margin: 2.5mm 0 0 !important; overflow: hidden !important; break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -42,4 +41,14 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
   .hypothesis-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
   .hypothesis-table th, .hypothesis-table td { padding: 2mm .7mm !important; font-size: 6pt !important; line-height: 1.1 !important; white-space: normal !important; }
   .scenario-badge { min-width: 0 !important; padding: 1mm !important; font-size: 6pt !important; }
+}
+
+@media print {
+  .chart-shell .apexcharts-canvas,
+  .chart-shell .apexcharts-svg {
+    max-height: 245px !important;
+  }
+  .charts-row .apexcharts-legend {
+    padding: 0 !important;
+  }
 }
