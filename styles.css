@@ -88,10 +88,10 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 112mm !important;
-        min-height: 112mm !important;
+        height: 116mm !important;
+        min-height: 116mm !important;
         margin: 0 !important;
-        padding: 2mm 2.5mm 5mm !important;
+        padding: 2mm 2.5mm 4mm !important;
         box-sizing: border-box !important;
         border-radius: 2mm !important;
         overflow: hidden !important;
@@ -99,15 +99,20 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         page-break-inside: avoid !important;
     }
 
-    .charts-row > div > div:first-child { margin-bottom: 0 !important; }
+    .charts-row > div > div:first-child {
+        height: 8mm !important;
+        min-height: 8mm !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
     .charts-row h3 { font-size: 8.5pt !important; line-height: 1.05 !important; }
 
     .chart-shell {
         width: 197mm !important;
-        height: 101mm !important;
-        min-height: 101mm !important;
+        height: 104mm !important;
+        min-height: 104mm !important;
         position: relative !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     .chart-shell .apexcharts-canvas,
@@ -174,58 +179,23 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 }
 
 @media print {
-    /*
-     * Los encabezados de ambas tarjetas ocupan exactamente
-     * la misma altura.
-     */
-    .charts-row > div > d*v:first-child {
-        height: 8mm !important;
-        min-height: 8mm !important;
-        margin-bottom: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    /*
-     * El contenedor de cada gráfica tiene la misma geometría.
-     */
-    .charts-row .chart-shell {
- *      position: relative !importan*;
-        height: 101mm !important*
-        min-height: 101mm !important;
-        overflow: visible !important;
-    }
-
-    /*
-     * El lienzo de ApexCharts mantiene su tamaño actual.
-     */
-    .charts-row .apexcharts-canvas {
-        position: relative !important;
-        height: 360px !important;
-        max-height: 360px !important;
-        overflow: visible !important;
-    }
-
-    /*
-     * Las dos leyendas se fijan en la misma posición inferior.
-     */
     .charts-row .apexcharts-legend {
-        position: absolute !important;
+        position: relative !important;
         top: auto !important;
-        bottom: -18px !important;
-        left: 0 !important;
-        right: 0 !important;
+        bottom: auto !important;
 
         width: 100% !important;
-        height: 20px !important;
-        min-height: 20px !important;
-        max-height: 20px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        max-height: 22px !important;
 
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
 
-        margin: 0 !important;
+        margin: 8px 0 0 !important;
         padding: 0 !important;
+
         overflow: visible !important;
         transform: none !important;
     }
@@ -238,7 +208,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     }
 
     .charts-row .apexcharts-legend-text {
-        line-height: 20px !important;
+        line-height: 22px !important;
         white-space: nowrap !important;
     }
 }

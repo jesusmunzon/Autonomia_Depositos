@@ -300,8 +300,29 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? 4 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '8px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -3 : 0 },
-                grid: { borderColor: '#e2e8f0' },
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: isPrintMode() ? 10 : 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
+                },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        top: 5,
+                        right: 14,
+                        bottom: isPrintMode() ? 24 : 0,
+                        left: 14
+                    }
+                },
                 annotations: { yaxis: [] }
             };
 
@@ -346,8 +367,29 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '8px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -3 : 0 },
-                grid: { borderColor: '#e2e8f0' }
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: isPrintMode() ? 10 : 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
+                },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        top: 5,
+                        right: 14,
+                        bottom: isPrintMode() ? 24 : 0,
+                        left: 14
+                    }
+                },
             };
 
             if (chartAlcNivel) chartAlcNivel.destroy();
@@ -383,8 +425,29 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? 4 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '8px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -3 : 0 },
-                grid: { borderColor: '#e2e8f0' },
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: isPrintMode() ? 10 : 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
+                },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        top: 5,
+                        right: 14,
+                        bottom: isPrintMode() ? 24 : 0,
+                        left: 14
+                    }
+                },
                 annotations: { yaxis: [] }
             };
 
@@ -430,8 +493,29 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '8px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -3 : 0 },
-                grid: { borderColor: '#e2e8f0' }
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: isPrintMode() ? '8px' : '12px',
+                    fontWeight: 600,
+                    offsetX: 0,
+                    offsetY: isPrintMode() ? 10 : 0,
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 0
+                    }
+                },
+                grid: {
+                    borderColor: '#e2e8f0',
+                    padding: {
+                        top: 5,
+                        right: 14,
+                        bottom: isPrintMode() ? 24 : 0,
+                        left: 14
+                    }
+                },
             };
 
             if (chartEntNivel) chartEntNivel.destroy();
