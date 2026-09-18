@@ -181,21 +181,15 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 @media print {
     .charts-row .apexcharts-legend {
         position: relative !important;
-        top: auto !important;
-        bottom: auto !important;
-
         width: 100% !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        max-height: 22px !important;
-
+        height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-
-        margin: 8px 0 0 !important;
+        margin-top: 14px !important;
         padding: 0 !important;
-
         overflow: visible !important;
         transform: none !important;
     }
@@ -208,7 +202,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     }
 
     .charts-row .apexcharts-legend-text {
-        line-height: 22px !important;
+        line-height: 36px !important;
         white-space: nowrap !important;
+        font-size: 8px !important;
     }
 }
