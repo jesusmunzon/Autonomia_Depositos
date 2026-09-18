@@ -110,6 +110,16 @@
             input.value = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
         }
 
+
+        function syncInletAverageField(target) {
+            const inputId = target === 'alcala' ? 'alc-caudal-entrada' : 'ent-caudal-entrada';
+            const input = document.getElementById(inputId);
+            if (!input || !state[target].useDefaultInlet) return;
+            const average = getInletProfileAverage(target);
+            state[target].caudalEntradaMedio = average;
+            input.value = average.toFixed(2);
+        }
+
         function setManeuverStart(target){const id=target==='alcala'?'alc-fecha-inicio':'ent-fecha-inicio',v=document.getElementById(id).value,d=v?new Date(v):null;state[target].startDate=d&&!Number.isNaN(d.getTime())?d:null;target==='alcala'?updateAlcalaSimulation():updateEntronqueSimulation();}
         async function printTab(target) {
             document.body.classList.remove('print-alcala', 'print-entronque');
@@ -238,7 +248,7 @@
             state.entronque.simulation = data.slice(0, visibleHours);
         }
 
-        function calculateAlcalaScenario(withBurguillos){let level=parseFloat(state.alcala.nivelInicio)||0;const initial=level,alertLevel=parseFloat(state.alcala.nivelMinimo)||0,factor=state.alcala.factor,hours=state.alcala.startDate?Math.min(168,state.alcala.entradaProfile.length):state.alcala.maxHours,fixed=parseFloat(document.getElementById('alc-caudal-entrada').value)||0,labels=getTimeLabels('alcala',hours);let breach=-1;const ins=[],outs=[];for(let i=0;i<hours;i++){const hod=i%24,input=state.alcala.useDefaultInlet?(state.alcala.entradaProfile[i]??state.alcala.entradaProfile[hod]??44.36):fixed,out1=state.alcala.salida1Profile[i]??state.alcala.salida1Profile[hod]??29.9,b=withBurguillos?(state.alcala.burguillosProfile[i]??state.alcala.burguillosProfile[hod]??0):0;ins.push(input);outs.push(out1+b);level=(((input-out1-b)*3.6)+(level*factor))/factor;if(breach<0&&level<=alertLevel)breach=i;}const n=breach<0?hours:breach+1,avg=v=>v.slice(0,n).reduce((x,y)=>x+y,0)/n;return{initial,alertLevel,inletAvg:avg(ins),outletAvg:avg(outs),autonomy:breach<0?'> 7 días':formatAutonomy(n),minimumTime:breach<0?'No alcanzado':labels[breach]};}
+        function calculateAlcalaScenario(withBurguillos){let level=parseFloat(state.alcala.nivelInicio)||0;const initial=level,alertLevel=parseFloat(state.alcala.nivelMinimo)||0,factor=state.alcala.factor,hours=state.alcala.startDate?Math.min(168,state.alcala.entradaProfile.length):state.alcala.maxHours,fixed=parseFloat(document.getElementById('alc-caudal-entrada').value)||0,labels=getTimeLabels('alcala',hours);let breach=-1;const ins=[],outs=[];for(let i=0;i<hours;i++){const hod=i%24,input=state.alcala.useDefaultInlet?(state.alcala.entradaProfile[i]??state.alcala.entradaProfile[hod]??44.36):fixed,out1=state.alcala.salida1Profile[i]??state.alcala.salida1Profile[hod]??29.9,b=withBurguillos?(state.alcala.burguillosProfile[i]??state.alcala.burguillosProfile[hod]??0):0;ins.push(input);outs.push(out1+b);level=(((input-out1-b)*3.6)+(level*factor))/factor;if(breach<0&&level<=alertLevel)breach=i;}const n=breach<0?hours:breach+1,avg=v=>v.slice(0,n).reduce((x,y)=>x+y,0)/n;return{initial,alertLevel,inletAvg:breach<0?getInletProfileAverage('alcala'):avg(ins),outletAvg:avg(outs),autonomy:breach<0?'> 7 días':formatAutonomy(n),minimumTime:breach<0?'No alcanzado':labels[breach]};}
         function updateAlcalaHypothesisSummary(){for(const[k,v]of Object.entries({con:calculateAlcalaScenario(true),sin:calculateAlcalaScenario(false)})){const put=(f,t)=>{const el=document.getElementById(`hyp-${k}-${f}`);if(el)el.innerText=t;};put('inicio',`${v.initial.toFixed(2)} m`);put('alerta',`${v.alertLevel.toFixed(2)} m`);put('entrada',`${v.inletAvg.toFixed(2)} l/s`);put('salida',`${v.outletAvg.toFixed(2)} l/s`);put('hora-minimo',v.minimumTime);put('autonomia',v.autonomy);}}
 
         // Update UI for Alcalá
@@ -274,7 +284,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 300 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#0284c7','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -283,13 +293,13 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -2 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 300 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -329,7 +339,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -2 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 
@@ -357,7 +367,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 300 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -366,13 +376,13 @@
                 xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, style: { fontSize: isPrintMode() ? '7px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -2 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
+                legend: { show: true, position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -2 : 0 },
                 grid: { borderColor: '#e2e8f0' },
                 annotations: { yaxis: [] }
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 315 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 300 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -413,7 +423,7 @@
                         }
                     }
                 },
-                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -4 : 0 },
+                legend: { position: 'bottom', horizontalAlign: 'center', fontSize: isPrintMode() ? '9px' : '12px', fontWeight: 600, offsetY: isPrintMode() ? -2 : 0 },
                 grid: { borderColor: '#e2e8f0' }
             };
 
@@ -639,6 +649,7 @@
             targetObj.startDate = new Date(firstDate.getTime());
             targetObj.startDate.setMilliseconds(0);
             syncManeuverDateInput(target);
+            syncInletAverageField(target);
             targetObj.entradaProfile = records.map(record => record.entrada);
             targetObj.salida1Profile = records.map(record => record.salida1);
             if (target === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
