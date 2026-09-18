@@ -66,7 +66,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .print-report-title {
         display: block !important;
-        height: 15mm !important;
+        height: 13mm !important;
         margin: 0 0 2mm !important;
         padding: 2.5mm 4mm !important;
         box-sizing: border-box !important;
@@ -75,7 +75,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         color: #ffffff !important;
     }
 
-    .print-report-title h1 { margin: 0 !important; font-size: 13pt !important; line-height: 1.05 !important; }
+    .print-report-title h1 { margin: 0 !important; font-size: 12pt !important; line-height: 1.05 !important; }
     .print-report-title p { margin: .8mm 0 0 !important; font-size: 6.8pt !important; color: #dbeafe !important; }
 
     .charts-row {
@@ -88,8 +88,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 96mm !important;
-        min-height: 96mm !important;
+        height: 101mm !important;
+        min-height: 101mm !important;
         margin: 0 !important;
         padding: 2mm 2.5mm 1mm !important;
         box-sizing: border-box !important;
@@ -104,8 +104,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .chart-shell {
         width: 197mm !important;
-        height: 88mm !important;
-        min-height: 88mm !important;
+        height: 93mm !important;
+        min-height: 93mm !important;
         overflow: hidden !important;
     }
 
@@ -113,8 +113,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     .chart-shell .apexcharts-svg {
         width: 100% !important;
         max-width: 100% !important;
-        height: 340px !important;
-        max-height: 340px !important;
+        height: 360px !important;
+        max-height: 360px !important;
         overflow: visible !important;
     }
 
@@ -126,7 +126,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         width: 202mm !important;
         height: auto !important;
         min-height: 0 !important;
-        margin: 2mm 0 0 !important;
+        margin: 1.5mm 0 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
         box-sizing: border-box !important;
@@ -137,7 +137,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     .hypothesis-summary > div:first-child {
         height: auto !important;
         min-height: 0 !important;
-        padding: 1.8mm 2.5mm !important;
+        padding: 1.4mm 2.5mm !important;
         box-sizing: border-box !important;
     }
 
@@ -147,7 +147,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .hypothesis-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
     .hypothesis-table th, .hypothesis-table td {
-        padding: 1.25mm .6mm !important;
+        padding: 1mm .6mm !important;
         font-size: 5.7pt !important;
         line-height: 1.05 !important;
         white-space: normal !important;
@@ -169,5 +169,26 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     [class*="apexcharts-scrollbar"] {
         display: none !important;
         visibility: hidden !important;
+    }
+}
+
+@media print {
+    .charts-row .apexcharts-legend {
+        bottom: 3mm !important;
+        top: auto !important;
+        height: 5mm !important;
+        align-items: center !important;
+        overflow: visible !important;
+    }
+
+    .charts-row .apexcharts-xaxis-texts-g text {
+        font-size: 6px !important;
+    }
+
+    .hypothesis-summary,
+    .hypothesis-summary .overflow-x-auto,
+    .hypothesis-summary table {
+        height: auto !important;
+        min-height: 0 !important;
     }
 }
