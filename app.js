@@ -291,7 +291,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#0284c7','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -305,21 +305,14 @@
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 8 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    offsetY: 0
                 },
                 grid: {
                     borderColor: '#e2e8f0',
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 70 : 0,
                         left: 14
                     }
                 },
@@ -327,7 +320,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -372,21 +365,14 @@
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 8 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    offsetY: 0
                 },
                 grid: {
                     borderColor: '#e2e8f0',
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 70 : 0,
                         left: 14
                     }
                 },
@@ -416,7 +402,7 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
@@ -430,21 +416,14 @@
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 8 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    offsetY: 0
                 },
                 grid: {
                     borderColor: '#e2e8f0',
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 70 : 0,
                         left: 14
                     }
                 },
@@ -452,7 +431,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -498,21 +477,14 @@
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 8 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    offsetY: 0
                 },
                 grid: {
                     borderColor: '#e2e8f0',
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 70 : 0,
                         left: 14
                     }
                 },
