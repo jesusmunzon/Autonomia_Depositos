@@ -119,8 +119,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     .chart-shell .apexcharts-svg {
         width: 100% !important;
         max-width: 100% !important;
-        height: 360px !important;
-        max-height: 360px !important;
+        height: 390px !important;
+        max-height: 390px !important;
         overflow: visible !important;
     }
 
