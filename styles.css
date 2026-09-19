@@ -16,7 +16,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 .scenario-off { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 .autonomy-value { color: #075985 !important; font-weight: 800 !important; background: linear-gradient(135deg,#ecfeff,#e0f2fe); box-shadow: inset 0 0 0 1px #bae6fd; }
 .print-report-title { display: none; }
-@media (min-width: 768px) { .charts-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; } }
 @page {
     size: A4 portrait;
     margin: 0;
@@ -88,8 +87,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 116mm !important;
-        min-height: 116mm !important;
+        height: 125mm !important;
+        min-height: 125mm !important;
         margin: 0 !important;
         padding: 2mm 2.5mm 4mm !important;
         box-sizing: border-box !important;
@@ -109,8 +108,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .chart-shell {
         width: 197mm !important;
-        height: 104mm !important;
-        min-height: 104mm !important;
+        height: 112mm !important;
+        min-height: 112mm !important;
         position: relative !important;
         overflow: visible !important;
     }
@@ -175,40 +174,5 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     [class*="apexcharts-scrollbar"] {
         display: none !important;
         visibility: hidden !important;
-    }
-}
-
-@media print {
-    .charts-row .apexcharts-legend {
-        position: relative !important;
-        top: auto !important;
-        bottom: auto !important;
-
-        width: 100% !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        max-height: 22px !important;
-
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-
-        margin: 8px 0 0 !important;
-        padding: 0 !important;
-
-        overflow: visible !important;
-        transform: none !important;
-    }
-
-    .charts-row .apexcharts-legend-series {
-        display: flex !important;
-        align-items: center !important;
-        margin: 0 8px !important;
-        padding: 0 !important;
-    }
-
-    .charts-row .apexcharts-legend-text {
-        line-height: 22px !important;
-        white-space: nowrap !important;
     }
 }

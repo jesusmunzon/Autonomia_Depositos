@@ -304,15 +304,7 @@
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 10 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    floating: false
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -371,15 +363,7 @@
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 10 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    floating: false
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -429,15 +413,7 @@
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 10 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    floating: false
                 },
                 grid: {
                     borderColor: '#e2e8f0',
@@ -497,15 +473,7 @@
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
-                    fontSize: isPrintMode() ? '8px' : '12px',
-                    fontWeight: 600,
-                    offsetX: 0,
-                    offsetY: isPrintMode() ? 10 : 0,
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 0
-                    }
+                    floating: false
                 },
                 grid: {
                     borderColor: '#e2e8f0',
