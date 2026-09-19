@@ -86,8 +86,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 108mm !important;
-        min-height: 108mm !important;
+        height: 105mm !important;
+        min-height: 105mm !important;
         margin: 0 !important;
         padding: 2mm 2.5mm 4mm !important;
         box-sizing: border-box !important;
@@ -107,8 +107,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .chart-shell {
         width: 197mm !important;
-        height: 98mm !important;
-        min-height: 98mm !important;
+        height: 92mm !important;
+        min-height: 92mm !important;
         position: relative !important;
         overflow: visible !important;
     }
