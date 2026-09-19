@@ -204,4 +204,19 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         white-space: nowrap !important;
         font-size: 8px !important;
     }
+
+
+
+    #chart-alcala-nivel .apexcharts-legend,
+    #chart-alcala-caudales .apexcharts-legend,
+    #chart-entronque-nivel .apexcharts-legend,
+    #chart-entronque-caudales .apexcharts-legend {
+        position: relative !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 999 !important;
+    }
+
+
 }
