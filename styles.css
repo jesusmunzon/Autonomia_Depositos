@@ -86,8 +86,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 98mm !important;
-        min-height: 98mm !important;
+        height: 92mm !important;
+        min-height: 92mm !important;
         margin: 0 !important;
         padding: 2mm 2.5mm 4mm !important;
         box-sizing: border-box !important;
@@ -107,8 +107,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .chart-shell {
         width: 197mm !important;
-        height: 88mm !important;
-        min-height: 88mm !important;
+        height: 96mm !important;
+        min-height: 96mm !important;
         position: relative !important;
         overflow: visible !important;
     }
@@ -130,7 +130,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         width: 202mm !important;
         height: auto !important;
         min-height: 0 !important;
-        margin: 1.5mm 0 0 !important;
+        margin: 0 !important;
         padding: 0 !important;
         overflow: visible !important;
         box-sizing: border-box !important;
