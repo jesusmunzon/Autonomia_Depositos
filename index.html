@@ -23,50 +23,34 @@
     <!-- Navbar Header -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-stretch justify-between">
-
-                <div class="flex-1">
-
-                    <div class="flex items-center min-h-[95px]">
-                        <div class="flex items-center space-x-3">
-                            <div class="bg-brand-500 p-2 rounded-lg text-white flex items-center justify-center">
-                                <i class="fa-solid font-bold fa-water-waves text-xl"></i>
-                            </div>
-
-                            <div>
-                                <h1 class="font-bold text-lg tracking-wide leading-tight">
-                                    Gestión de Red Hidráulica
-                                </h1>
-                                <p class="text-xs leading-4 text-slate-400 mt-auto">
-                                    Sistema de Simulación: Alcalá del Río & Entronque
-                                </p>
-                            </div>
-                        </div>
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-brand-500 p-2 rounded-lg text-white flex items-center justify-center">
+                        <i class="fa-solid font-bold fa-water-waves text-xl"></i>
                     </div>
-
-                    <nav class="flex space-x-8 border-t border-slate-800 text-sm">
-                        <button id="tab-btn-alcala" onclick="switchTab('alcala')" class="py-3 px-1 tab-active flex items-center space-x-2 text-slate-400 hover:text-white transition-all">
-                            <i class="fa-solid fa-faucet-drip"></i>
-                            <span>Alcalá del Río</span>
-                        </button>
-
-                        <button id="tab-btn-entronque" onclick="switchTab('entronque')" class="py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2">
-                            <i class="fa-solid fa-diagram-project"></i>
-                            <span>Entronque</span>
-                        </button>
-                    </nav>
-
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wide leading-tight">Gestión de Red Hidráulica</h1>
+                        <p class="text-xs leading-4 text-slate-400 mt-auto">Sistema de Simulación: Alcalá del Río & Entronque</p>
+                    </div>
                 </div>
-
-                <div class="flex items-stretch pr-2">
-                    <img
-                        src="emasesa.png"
-                        alt="EMASESA"
-                        class="h-full w-auto object-contain"
-                    >
+                <div class="flex items-center space-x-3">
+                    <button onclick="exportSummaryPDF()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs px-3 py-2 rounded-lg transition-all flex items-center font-medium shadow-sm">
+                        <i class="fa-solid fa-file-export mr-1.5"></i> Exportar
+                    </button>
                 </div>
-
             </div>
+
+            <!-- Tab Navigation Bar -->
+            <nav class="flex space-x-8 border-t border-slate-800 text-sm">
+                <button id="tab-btn-alcala" onclick="switchTab('alcala')" class="py-3 px-1 tab-active flex items-center space-x-2 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-faucet-drip"></i>
+                    <span>Alcalá del Río</span>
+                </button>
+                <button id="tab-btn-entronque" onclick="switchTab('entronque')" class="py-3 px-1 text-slate-400 hover:text-white transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Entronque</span>
+                </button>
+            </nav>
         </div>
     </header>
 
