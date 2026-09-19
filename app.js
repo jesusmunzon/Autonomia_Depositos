@@ -257,6 +257,84 @@
         function calculateAlcalaScenario(withBurguillos){let level=parseFloat(state.alcala.nivelInicio)||0;const initial=level,alertLevel=parseFloat(state.alcala.nivelMinimo)||0,factor=state.alcala.factor,hours=state.startDate?Math.min(168,state.alcala.entradaProfile.length):state.alcala.maxHours,fixed=parseFloat(document.getElementById('alc-caudal-entrada').value)||0,labels=getTimeLabels('alcala',hours);let breach=-1;const ins=[],outs=[];for(let i=0;i<hours;i++){const hod=i%24,input=state.alcala.useDefaultInlet?(state.alcala.entradaProfile[i]??state.alcala.entradaProfile[hod]??44.36):fixed,out1=state.alcala.salida1Profile[i]??state.alcala.salida1Profile[hod]??29.9,b=withBurguillos?(state.alcala.burguillosProfile[i]??state.alcala.burguillosProfile[hod]??0):0;ins.push(input);outs.push(out1+b);level=(((input-out1-b)*3.6)+(level*factor))/factor;if(breach<0&&level<=alertLevel)breach=i;}const n=breach<0?hours:breach+1,avg=v=>v.slice(0,n).reduce((x,y)=>x+y,0)/n;return{initial,alertLevel,inletAvg:breach<0?getInletProfileAverage('alcala'):avg(ins),outletAvg:avg(outs),autonomy:breach<0?'> 7 días':formatAutonomy(n),minimumTime:breach<0?'No alcanzado':labels[breach]};}
         function updateAlcalaHypothesisSummary(){for(const[k,v]of Object.entries({con:calculateAlcalaScenario(true),sin:calculateAlcalaScenario(false)})){const put=(f,t)=>{const el=document.getElementById(`hyp-${k}-${f}`);if(el)el.innerText=t;};put('inicio',`${v.initial.toFixed(2)} m`);put('alerta',`${v.alertLevel.toFixed(2)} m`);put('entrada',`${v.inletAvg.toFixed(2)} l/s`);put('salida',`${v.outletAvg.toFixed(2)} l/s`);put('hora-minimo',v.minimumTime);put('autonomia',v.autonomy);}}
 
+        function updateEntronqueHypothesisSummary() {
+
+            let level = parseFloat(state.entronque.nivelInicio) || 0;
+
+            const initial = level;
+            const alertLevel = parseFloat(state.entronque.nivelMinimo) || 0;
+            const factor = state.entronque.factor;
+
+            const hours = state.startDate
+                ? Math.min(168, state.entronque.entradaProfile.length)
+                : state.entronque.maxHours;
+
+            const fixed =
+                parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
+
+            const labels = getTimeLabels('entronque', hours);
+
+            let breach = -1;
+
+            const ins = [];
+            const outs = [];
+
+            for (let i = 0; i < hours; i++) {
+
+                const hod = i % 24;
+
+                const input =
+                    state.entronque.useDefaultInlet
+                    ? (state.entronque.entradaProfile[i]
+                    ?? state.entronque.entradaProfile[hod]
+                    ?? 48.5)
+                    : fixed;
+
+                const out =
+                    state.entronque.salida1Profile[i]
+                    ?? state.entronque.salida1Profile[hod]
+                    ?? 30;
+
+                ins.push(input);
+                outs.push(out);
+
+                level =
+                    (((input - out) * 3.6) + (level * factor))
+                    / factor;
+
+                if (breach < 0 && level <= alertLevel) {
+                    breach = i;
+                }
+            }
+
+            const n = breach < 0 ? hours : breach + 1;
+
+            const avg = v =>
+                v.slice(0, n).reduce((x, y) => x + y, 0) / n;
+
+            document.getElementById('ent-hyp-inicio').innerText =
+                `${initial.toFixed(2)} m`;
+
+            document.getElementById('ent-hyp-alerta').innerText =
+                `${alertLevel.toFixed(2)} m`;
+
+            document.getElementById('ent-hyp-entrada').innerText =
+                `${(breach < 0 ? getInletProfileAverage('entronque') : avg(ins)).toFixed(2)} l/s`;
+
+            document.getElementById('ent-hyp-salida').innerText =
+                `${avg(outs).toFixed(2)} l/s`;
+
+            document.getElementById('ent-hyp-hora-minimo').innerText =
+                breach < 0
+                    ? 'No alcanzado'
+                    : labels[breach];
+
+            document.getElementById('ent-hyp-autonomia').innerText =
+                breach < 0
+                    ? '> 7 días'
+                    : formatAutonomy(n);
+        }
+
         // Update UI for Alcalá
         function updateAlcalaUI(){calculateAlcala();updateAlcalaCharts();updateAlcalaHypothesisSummary();}
         function isPrintMode() { return document.body.classList.contains('print-alcala') || document.body.classList.contains('print-entronque'); }
@@ -385,7 +463,7 @@
         }
 
         // Update UI for Entronque
-        function updateEntronqueUI(){calculateEntronque();updateEntronqueCharts();}
+        function updateEntronqueUI(){calculateEntronque();updateEntronqueCharts();updateEntronqueHypothesisSummary();}
         function updateEntronqueCharts() {
             const sim = state.entronque.simulation;
             if (!sim || sim.length === 0) return;
