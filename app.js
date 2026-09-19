@@ -297,7 +297,7 @@
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
@@ -319,7 +319,7 @@
             };
 
             const flowOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [
                     { name: 'Entrada', data: smoothFlowSeries(sim.map(s => Number(s.entrada)), 8) },
                     { name: 'Salida', data: smoothFlowSeries(sim.map(s => Number(s.salidaTotal)), 8) }
@@ -336,7 +336,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
@@ -400,13 +400,13 @@
             const minIndex = niveles.indexOf(minValue);
 
             const levelOptions = {
-                chart: { type: 'line', height: isPrintMode() ? 390 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
+                chart: { type: 'line', height: isPrintMode() ? 330 : 420, width: '100%', parentHeightOffset: 0, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, selection: { enabled: false }, dropShadow: { enabled: false }, animations: { enabled: false }, zoom: { enabled: false }, selection: { enabled: false }, dropShadow: { enabled: false }, sparkline: { enabled: false } },
                 series: [{ name: 'Nivel del depósito', data: niveles }, { name: 'Nivel mínimo de alerta', data: Array(labels.length).fill(minLimit) }],
                 colors: ['#6366f1','#ef4444'],
                 stroke: { curve: 'smooth', width: [3,2], dashArray: [0,6] },
                 markers: { size: 0, hover: { size: 7, sizeOffset: 3 } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
                 yaxis: { min: Math.max(0, Math.floor(Math.min(minValue, minLimit) - 0.5)), max: Math.ceil(maxValue + 0.5), labels: { formatter: v => `${v.toFixed(2)} m`, style: { colors: '#64748b' } } },
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
@@ -445,7 +445,7 @@
                     }
                 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: isPrintMode() ? 0 : -90, rotateAlways: !isPrintMode(), hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
+                xaxis: { categories: labels, tickAmount: isPrintMode() ? 6 : 10, tickPlacement: 'between', labels: { rotate: -90, rotateAlways: true, hideOverlappingLabels: true, trim: false, formatter: value => isPrintMode() && value ? String(value).replace(' ', '\n') : value, style: { fontSize: isPrintMode() ? '6px' : '10px', colors: '#64748b' }, offsetY: isPrintMode() ? -10 : 0 }, tooltip: { enabled: false } },
                 yaxis: { labels: { formatter: v => v.toFixed(1), style: { colors: '#64748b' } } },
                 tooltip: {
                     enabled: true,
