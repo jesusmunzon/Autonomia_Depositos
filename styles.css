@@ -86,13 +86,13 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .charts-row > div {
         width: 202mm !important;
-        height: 100mm !important;
-        min-height: 100mm !important;
+        height: 115mm !important;
+        min-height: 115mm !important;
         margin: 0 !important;
         padding: 2mm 2.5mm 4mm !important;
         box-sizing: border-box !important;
         border-radius: 2mm !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
@@ -107,8 +107,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
 
     .chart-shell {
         width: 197mm !important;
-        height: 82mm !important;
-        min-height: 82mm !important;
+        height: 100mm !important;
+        min-height: 100mm !important;
         position: relative !important;
         overflow: visible !important;
     }
@@ -121,7 +121,13 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
     }
 
     .apexcharts-xaxis-texts-g text { font-size: 5.5px !important; }
-    .apexcharts-legend { overflow: visible !important; max-height: none !important; padding: 0 !important; }
+    .apexcharts-legend {
+        position: relative !important;
+        top: -12px !important;
+        overflow: visible !important;
+        max-height: none !important;
+        padding: 0 !important;
+    }
     .apexcharts-legend-text { font-size: 7px !important; }
 
     .hypothesis-summary {
