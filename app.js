@@ -759,10 +759,6 @@
             updateEntronqueUI();
         }
 
-        function exportSummaryPDF() {
-            window.print();
-        }
-
         function normalizeSheetName(name) {
             return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         }
