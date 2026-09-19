@@ -311,7 +311,7 @@
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 5 : 0,
                         left: 14
                     }
                 },
@@ -370,7 +370,7 @@
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 5 : 0,
                         left: 14
                     }
                 },
@@ -420,7 +420,7 @@
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 5 : 0,
                         left: 14
                     }
                 },
@@ -480,7 +480,7 @@
                     padding: {
                         top: 5,
                         right: 14,
-                        bottom: isPrintMode() ? 24 : 0,
+                        bottom: isPrintMode() ? 5 : 0,
                         left: 14
                     }
                 },
