@@ -378,6 +378,53 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Resumen de hipótesis de Entronque -->
+            <section class="hypothesis-summary glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                    <h3 class="text-base font-bold text-slate-800">
+                        <i class="fa-solid fa-table-list text-indigo-500 mr-2"></i>
+                        Resumen de hipótesis
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Resultado de la simulación de Entronque.
+                    </p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="hypothesis-table">
+                        <colgroup>
+                            <col><col><col><col><col><col><col>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Hipótesis</th>
+                                <th>Nivel inicial</th>
+                                <th>Nivel mínimo de alerta</th>
+                                <th>Q medio entrada</th>
+                                <th>Q medio salida</th>
+                                <th>Hora mínimo</th>
+                                <th>Autonomía</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="scenario-badge scenario-off">
+                                        Salida depósito
+                                    </span>
+                                </td>
+                                <td id="ent-hyp-inicio">-</td>
+                                <td id="ent-hyp-alerta">-</td>
+                                <td id="ent-hyp-entrada">-</td>
+                                <td id="ent-hyp-salida">-</td>
+                                <td id="ent-hyp-hora-minimo">-</td>
+                                <td id="ent-hyp-autonomia" class="autonomy-value">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
         </section>
 
     </main>
