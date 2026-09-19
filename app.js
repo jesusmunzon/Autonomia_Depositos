@@ -302,7 +302,7 @@
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
                     show: true,
-                    position: 'bottom',
+                    position: 'top',
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: isPrintMode() ? '8px' : '12px',
@@ -369,7 +369,7 @@
                 },
                 legend: {
                     show: true,
-                    position: 'bottom',
+                    position: 'top',
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: isPrintMode() ? '8px' : '12px',
@@ -427,7 +427,7 @@
                 tooltip: { shared: false, intersect: false, followCursor: true, x: { show: true }, y: { formatter: v => `${v.toFixed(2)} m` } },
                 legend: {
                     show: true,
-                    position: 'bottom',
+                    position: 'top',
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: isPrintMode() ? '8px' : '12px',
@@ -495,7 +495,7 @@
                 },
                 legend: {
                     show: true,
-                    position: 'bottom',
+                    position: 'top',
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: isPrintMode() ? '8px' : '12px',
