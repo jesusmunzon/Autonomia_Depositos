@@ -82,7 +82,7 @@
         }
 
         function getTimeLabels(target, hours) {
-            const base = state[target].startDate;
+            const base = state.startDate;
             if (base instanceof Date && !Number.isNaN(base.getTime())) {
                 return Array.from({ length: hours }, (_, i) => formatDateTime(new Date(base.getTime() + i * 3600000)));
             }
@@ -111,7 +111,7 @@
         function syncManeuverDateInput(target) {
             const id = target === 'alcala' ? 'alc-fecha-inicio' : 'ent-fecha-inicio';
             const input = document.getElementById(id);
-            const date = state[target].startDate;
+            const date = state.startDate;
             if (!input || !(date instanceof Date) || Number.isNaN(date.getTime())) return;
             const pad = value => String(value).padStart(2, '0');
             input.value = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -127,7 +127,26 @@
             input.value = average.toFixed(2);
         }
 
-        function setManeuverStart(target){const id=target==='alcala'?'alc-fecha-inicio':'ent-fecha-inicio',v=document.getElementById(id).value,d=v?new Date(v):null;state[target].startDate=d&&!Number.isNaN(d.getTime())?d:null;target==='alcala'?updateAlcalaSimulation():updateEntronqueSimulation();}
+        function setManeuverStart(target){
+            const id = target === 'alcala'
+                ? 'alc-fecha-inicio'
+                : 'ent-fecha-inicio';
+
+            const v = document.getElementById(id).value;
+            const d = v ? new Date(v) : null;
+
+            state.startDate =
+                d && !Number.isNaN(d.getTime())
+                ? d
+                : null;
+
+            // Sincronizar todos los inputs existentes
+            syncManeuverDateInput('alcala');
+            syncManeuverDateInput('entronque');
+
+            updateAlcalaSimulation();
+            updateEntronqueSimulation();
+        }
         async function printTab(target) {
             document.body.classList.remove('print-alcala', 'print-entronque');
             document.body.classList.add(`print-${target}`);
@@ -197,7 +216,7 @@
             const useExcelProfile = state.alcala.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('alc-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.alcala.nivelMinimo) || 0;
-            const maxHours = state.alcala.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
+            const maxHours = state.startDate ? Math.min(168, state.alcala.entradaProfile.length) : state.alcala.maxHours;
             const labels = getTimeLabels('alcala', maxHours);
             let breachHour = -1;
 
@@ -231,7 +250,7 @@
             const useExcelProfile = state.entronque.useDefaultInlet;
             const fixedInletVal = parseFloat(document.getElementById('ent-caudal-entrada').value) || 0;
             const minNivel = parseFloat(state.entronque.nivelMinimo) || 0;
-            const maxHours = state.entronque.startDate ? Math.min(168, state.entronque.entradaProfile.length) : state.entronque.maxHours;
+            const maxHours = state.startDate ? Math.min(168, state.entronque.entradaProfile.length) : state.entronque.maxHours;
             const labels = getTimeLabels('entronque', maxHours);
             let breachHour = -1;
 
@@ -255,7 +274,7 @@
             state.entronque.simulation = data.slice(0, visibleHours);
         }
 
-        function calculateAlcalaScenario(withBurguillos){let level=parseFloat(state.alcala.nivelInicio)||0;const initial=level,alertLevel=parseFloat(state.alcala.nivelMinimo)||0,factor=state.alcala.factor,hours=state.alcala.startDate?Math.min(168,state.alcala.entradaProfile.length):state.alcala.maxHours,fixed=parseFloat(document.getElementById('alc-caudal-entrada').value)||0,labels=getTimeLabels('alcala',hours);let breach=-1;const ins=[],outs=[];for(let i=0;i<hours;i++){const hod=i%24,input=state.alcala.useDefaultInlet?(state.alcala.entradaProfile[i]??state.alcala.entradaProfile[hod]??44.36):fixed,out1=state.alcala.salida1Profile[i]??state.alcala.salida1Profile[hod]??29.9,b=withBurguillos?(state.alcala.burguillosProfile[i]??state.alcala.burguillosProfile[hod]??0):0;ins.push(input);outs.push(out1+b);level=(((input-out1-b)*3.6)+(level*factor))/factor;if(breach<0&&level<=alertLevel)breach=i;}const n=breach<0?hours:breach+1,avg=v=>v.slice(0,n).reduce((x,y)=>x+y,0)/n;return{initial,alertLevel,inletAvg:breach<0?getInletProfileAverage('alcala'):avg(ins),outletAvg:avg(outs),autonomy:breach<0?'> 7 días':formatAutonomy(n),minimumTime:breach<0?'No alcanzado':labels[breach]};}
+        function calculateAlcalaScenario(withBurguillos){let level=parseFloat(state.alcala.nivelInicio)||0;const initial=level,alertLevel=parseFloat(state.alcala.nivelMinimo)||0,factor=state.alcala.factor,hours=state.startDate?Math.min(168,state.alcala.entradaProfile.length):state.alcala.maxHours,fixed=parseFloat(document.getElementById('alc-caudal-entrada').value)||0,labels=getTimeLabels('alcala',hours);let breach=-1;const ins=[],outs=[];for(let i=0;i<hours;i++){const hod=i%24,input=state.alcala.useDefaultInlet?(state.alcala.entradaProfile[i]??state.alcala.entradaProfile[hod]??44.36):fixed,out1=state.alcala.salida1Profile[i]??state.alcala.salida1Profile[hod]??29.9,b=withBurguillos?(state.alcala.burguillosProfile[i]??state.alcala.burguillosProfile[hod]??0):0;ins.push(input);outs.push(out1+b);level=(((input-out1-b)*3.6)+(level*factor))/factor;if(breach<0&&level<=alertLevel)breach=i;}const n=breach<0?hours:breach+1,avg=v=>v.slice(0,n).reduce((x,y)=>x+y,0)/n;return{initial,alertLevel,inletAvg:breach<0?getInletProfileAverage('alcala'):avg(ins),outletAvg:avg(outs),autonomy:breach<0?'> 7 días':formatAutonomy(n),minimumTime:breach<0?'No alcanzado':labels[breach]};}
         function updateAlcalaHypothesisSummary(){for(const[k,v]of Object.entries({con:calculateAlcalaScenario(true),sin:calculateAlcalaScenario(false)})){const put=(f,t)=>{const el=document.getElementById(`hyp-${k}-${f}`);if(el)el.innerText=t;};put('inicio',`${v.initial.toFixed(2)} m`);put('alerta',`${v.alertLevel.toFixed(2)} m`);put('entrada',`${v.inletAvg.toFixed(2)} l/s`);put('salida',`${v.outletAvg.toFixed(2)} l/s`);put('hora-minimo',v.minimumTime);put('autonomia',v.autonomy);}}
 
         // Update UI for Alcalá
@@ -705,8 +724,8 @@
             if (!firstDate || !records.length) return false;
             records.sort((a, b) => a.date - b.date);
             const targetObj = state[target];
-            targetObj.startDate = new Date(firstDate.getTime());
-            targetObj.startDate.setMilliseconds(0);
+            state.startDate = new Date(firstDate.getTime());
+            state.startDate.setMilliseconds(0);
             syncManeuverDateInput(target);
             syncInletAverageField(target);
             targetObj.entradaProfile = records.map(record => record.entrada);
