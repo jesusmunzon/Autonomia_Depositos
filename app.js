@@ -22,6 +22,7 @@
         // Global State
         const state = {
             currentTab: 'alcala',
+            startDate: null,
             alcala: {
                 burguillosOption: 'con',
                 useDefaultInlet: true,
@@ -29,7 +30,6 @@
                 nivelMinimo: 1.00,
                 caudalEntradaMedio: 44.36,
                 isCustomData: false,
-                startDate: null,
                 timestamps: [],
                 entradaProfile: [...PATTERN_ENTRADA_ALCALA_DEFAULT],
                 salida1Profile: [...PATTERN_SALIDA_1_ALCALA],
@@ -46,7 +46,6 @@
                 nivelMinimo: 1.50,
                 caudalEntradaMedio: 48.50,
                 isCustomData: false,
-                startDate: null,
                 timestamps: [],
                 entradaProfile: [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT],
                 salida1Profile: [...PATTERN_SALIDA_1_ENTRONQUE],
@@ -127,26 +126,7 @@
             input.value = average.toFixed(2);
         }
 
-        function setManeuverStart(target){
-            const id = target === 'alcala'
-                ? 'alc-fecha-inicio'
-                : 'ent-fecha-inicio';
-
-            const v = document.getElementById(id).value;
-            const d = v ? new Date(v) : null;
-
-            state.startDate =
-                d && !Number.isNaN(d.getTime())
-                ? d
-                : null;
-
-            // Sincronizar todos los inputs existentes
-            syncManeuverDateInput('alcala');
-            syncManeuverDateInput('entronque');
-
-            updateAlcalaSimulation();
-            updateEntronqueSimulation();
-        }
+        function setManeuverStart(target){ const id=target==='alcala'?'alc-fecha-inicio':'ent-fecha-inicio'; const value=document.getElementById(id).value; const date=value?new Date(value):null; state.startDate=date&&!Number.isNaN(date.getTime())?date:null; syncManeuverDateInput('alcala'); syncManeuverDateInput('entronque'); updateAlcalaSimulation(); updateEntronqueSimulation(); }
         async function printTab(target) {
             document.body.classList.remove('print-alcala', 'print-entronque');
             document.body.classList.add(`print-${target}`);
@@ -731,7 +711,7 @@
             targetObj.entradaProfile = records.map(record => record.entrada);
             targetObj.salida1Profile = records.map(record => record.salida1);
             if (target === 'alcala') targetObj.burguillosProfile = records.map(record => record.burguillos);
-            targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(targetObj.startDate.getTime() + i * 3600000));
+            targetObj.timestamps = Array.from({ length: Math.min(168, records.length) }, (_, i) => new Date(state.startDate.getTime() + i * 3600000));
             targetObj.maxHours = Math.min(168, records.length);
             targetObj.isCustomData = true;
             const average = targetObj.entradaProfile.reduce((sum, value) => sum + value, 0) / targetObj.entradaProfile.length;
