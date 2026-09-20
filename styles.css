@@ -81,7 +81,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         grid-template-columns: 1fr !important;
         width: 202mm !important;
         gap: 2mm !important;
-        margin: 0 0 4mm 0 !important;
+        margin: 0 0 2mm 0 !important;
     }
 
     .charts-row > div {
