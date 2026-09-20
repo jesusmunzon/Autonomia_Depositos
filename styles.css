@@ -136,30 +136,44 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e29
         min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         box-sizing: border-box !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 2mm !important;
+        box-shadow: none !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
 
     .hypothesis-summary > div:first-child {
+        width: 100% !important;
         height: auto !important;
         min-height: 0 !important;
+        margin: 0 !important;
         padding: 1.4mm 2.5mm !important;
         box-sizing: border-box !important;
     }
 
     .hypothesis-summary h3 { margin: 0 !important; font-size: 8pt !important; }
     .hypothesis-summary p { margin: .6mm 0 0 !important; font-size: 6pt !important; }
-    .hypothesis-summary .overflow-x-auto { overflow: hidden !important; }
+    .hypothesis-summary .overflow-x-auto { width: 100% !important; overflow: hidden !important; border-radius: 0 0 2mm 2mm !important; }
 
-    .hypothesis-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+    .hypothesis-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        margin: 0 !important;
+    }
     .hypothesis-table th, .hypothesis-table td {
         padding: 1mm .6mm !important;
         font-size: 5.7pt !important;
         line-height: 1.05 !important;
         white-space: normal !important;
     }
+    .hypothesis-table tbody tr:last-child td { border-bottom: 0 !important; }
+
     .scenario-badge { min-width: 0 !important; padding: .7mm !important; font-size: 5.7pt !important; }
 
     .apexcharts-toolbar,
