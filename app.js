@@ -14,6 +14,7 @@
         // Modal State
         let activeModalTarget = 'alcala';
         let tempHourlyProfile = {
+            timestamps: [],
             entrada: [],
             salida1: [],
             burguillos: []
@@ -572,23 +573,65 @@
             chartEntCaudales.render();
         }
 
+        function createProfileTimestamps(length) {
+            const base =
+                state.startDate instanceof Date &&
+                !Number.isNaN(state.startDate.getTime())
+                    ? state.startDate
+                    : new Date();
+
+            base.setMilliseconds(0);
+
+            return Array.from(
+                { length },
+                (_, index) => new Date(base.getTime() + index * 3600000)
+            );
+        }
+
         // Modal Functions for Excel Data
         function openExcelModal(target) {
             activeModalTarget = target;
-            const targetObj = target === 'alcala' ? state.alcala : state.entronque;
-
+            const targetObj =
+                target === 'alcala'
+                    ? state.alcala
+                    : state.entronque;
+            const profileLength = Math.max(
+                targetObj.entradaProfile.length,
+                targetObj.salida1Profile.length,
+                target === 'alcala'
+                    ? targetObj.burguillosProfile.length
+                    : 0
+            );
+            const storedTimestamps =
+                Array.isArray(targetObj.timestamps)
+                    ? targetObj.timestamps
+                        .map(value => normalizeExcelDate(value))
+                        .filter(Boolean)
+                    : [];
             tempHourlyProfile = {
+                timestamps:
+                    storedTimestamps.length === profileLength
+                        ? storedTimestamps
+                        : createProfileTimestamps(profileLength),
                 entrada: [...targetObj.entradaProfile],
                 salida1: [...targetObj.salida1Profile],
-                burguillos: target === 'alcala' ? [...targetObj.burguillosProfile] : Array(24).fill(0)
+                burguillos:
+                    target === 'alcala'
+                        ? [...targetObj.burguillosProfile]
+                        : Array(profileLength).fill(0)
             };
-
-            document.getElementById('excel-modal-title').innerText = `Cargar / Pegar Datos de Excel - ${target === 'alcala' ? 'Alcalá del Río' : 'Entronque'}`;
-            document.getElementById('modal-th-burguillos').style.display = target === 'alcala' ? '' : 'none';
-            document.getElementById('excel-paste-area').value = '';
-
+            document.getElementById('excel-modal-title').innerText =
+                `Cargar datos de Excel - ${
+                    target === 'alcala'
+                        ? 'Alcalá del Río'
+                        : 'Entronque'
+                }`;
+            document.getElementById('modal-th-burguillos').style.display =
+                target === 'alcala' ? '' : 'none';
             renderModalTable();
-            document.getElementById('excel-modal').classList.remove('hidden');
+            document
+                .getElementById('excel-modal')
+                .classList.remove('hidden');
         }
 
         function closeExcelModal() {
@@ -597,91 +640,162 @@
 
         function renderModalTable() {
             const tbody = document.getElementById('modal-table-body');
+            if (!tbody) return;
+            const rowCount = Math.max(
+                tempHourlyProfile.timestamps.length,
+                tempHourlyProfile.entrada.length,
+                tempHourlyProfile.salida1.length,
+                activeModalTarget === 'alcala'
+                    ? tempHourlyProfile.burguillos.length
+                    : 0
+            );
             let html = '';
-
-            for (let h = 0; h < 24; h++) {
-                const timeStr = `${String(h).padStart(2, '0')}:00`;
+            for (let i = 0; i < rowCount; i++) {
+                const timestamp = tempHourlyProfile.timestamps[i];
+                const dateText = timestamp
+                    ? formatDateTime(timestamp)
+                    : '-';
+                const entrada =
+                    Number(tempHourlyProfile.entrada[i]) || 0;
+                const salida1 =
+                    Number(tempHourlyProfile.salida1[i]) || 0;
+                const burguillos =
+                    Number(tempHourlyProfile.burguillos[i]) || 0;
                 html += `
                     <tr>
-                        <td class="py-1.5 px-4 font-semibold text-slate-700">${timeStr}</td>
-                        <td class="py-1.5 px-4">
-                            <input type="number" value="${tempHourlyProfile.entrada[h]}" onchange="tempHourlyProfile.entrada[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs font-semibold focus:ring-1 focus:ring-emerald-500">
+                        <td class="py-1.5 px-4 font-semibold text-slate-700 text-center whitespace-nowrap">
+                            ${dateText}
                         </td>
-                        <td class="py-1.5 px-4">
-                            <input type="number" value="${tempHourlyProfile.salida1[h]}" onchange="tempHourlyProfile.salida1[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-emerald-500">
+                        <td class="py-1.5 px-4 text-center">
+                            <input
+                                type="number"
+                                value="${entrada.toFixed(2)}"
+                                step="0.01"
+                                onchange="
+                                    tempHourlyProfile.entrada[${i}] =
+                                        parseFloat(this.value) || 0;
+                                    this.value =
+                                        tempHourlyProfile.entrada[${i}].toFixed(2);
+                                "
+                                class="w-28 px-2 py-1 border border-slate-300 rounded text-xs font-semibold text-center focus:ring-1 focus:ring-emerald-500"
+                            >
                         </td>
-                        ${activeModalTarget === 'alcala' ? `
-                            <td class="py-1.5 px-4">
-                                <input type="number" value="${tempHourlyProfile.burguillos[h]}" onchange="tempHourlyProfile.burguillos[${h}] = parseFloat(this.value)||0" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-emerald-500">
-                            </td>
-                        ` : ''}
+                        <td class="py-1.5 px-4 text-center">
+                            <input
+                                type="number"
+                                value="${salida1.toFixed(2)}"
+                                step="0.01"
+                                onchange="
+                                    tempHourlyProfile.salida1[${i}] =
+                                        parseFloat(this.value) || 0;
+                                    this.value =
+                                        tempHourlyProfile.salida1[${i}].toFixed(2);
+                                "
+                                class="w-28 px-2 py-1 border border-slate-300 rounded text-xs text-center focus:ring-1 focus:ring-emerald-500"
+                            >
+                        </td>
+                        ${
+                            activeModalTarget === 'alcala'
+                                ? `
+                                    <td class="py-1.5 px-4 text-center">
+                                        <input
+                                            type="number"
+                                            value="${burguillos.toFixed(2)}"
+                                            step="0.01"
+                                            onchange="
+                                                tempHourlyProfile.burguillos[${i}] =
+                                                    parseFloat(this.value) || 0;
+                                                this.value =
+                                                    tempHourlyProfile.burguillos[${i}].toFixed(2);
+                                            "
+                                            class="w-28 px-2 py-1 border border-slate-300 rounded text-xs text-center focus:ring-1 focus:ring-emerald-500"
+                                        >
+                                    </td>
+                                `
+                                : ''
+                        }
                     </tr>
                 `;
             }
             tbody.innerHTML = html;
         }
 
-        // Process pasted column text from Excel
-        function processPastedExcelData() {
-            const rawText = document.getElementById('excel-paste-area').value.trim();
-            if (!rawText) return;
-
-            // Extract numeric values from pasted content
-            const numbers = rawText
-                .split(/[\n,;\t]+/)
-                .map(v => parseFloat(v.replace(/[^0-9.-]/g, '')))
-                .filter(v => !isNaN(v));
-
-            if (numbers.length === 0) return;
-
-            for (let i = 0; i < 24; i++) {
-                if (i < numbers.length) {
-                    tempHourlyProfile.entrada[i] = numbers[i];
-                } else {
-                    tempHourlyProfile.entrada[i] = numbers[numbers.length - 1]; // pad last if fewer than 24
-                }
-            }
-
-            renderModalTable();
-        }
-
         // Handle Excel File Upload (.xlsx, .xls, .csv)
         function handleExcelFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, {
+                        type: 'array',
+                        cellDates: true
+                    });
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    const parsedNumbers = [];
-                    json.forEach(row => {
-                        row.forEach(cell => {
-                            const val = parseFloat(cell);
-                            if (!isNaN(val) && val > 0 && val < 10000) {
-                                parsedNumbers.push(val);
-                            }
-                        });
-                    });
-
-                    if (parsedNumbers.length >= 24) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i];
+                    const rows = XLSX.utils.sheet_to_json(
+                        worksheet,
+                        {
+                            header: 1,
+                            raw: true,
+                            defval: null
                         }
-                    } else if (parsedNumbers.length > 0) {
-                        for (let i = 0; i < 24; i++) {
-                            tempHourlyProfile.entrada[i] = parsedNumbers[i % parsedNumbers.length];
-                        }
+                    );
+                    const records = rows
+                        .slice(1)
+                        .map(row => ({
+                            date: normalizeExcelDate(row[0]),
+                            entrada: Number(row[1]),
+                            salida1: Number(row[2]),
+                            burguillos:
+                                activeModalTarget === 'alcala'
+                                    ? Number(row[3] || 0)
+                                    : 0
+                        }))
+                        .filter(record =>
+                            record.date &&
+                            Number.isFinite(record.entrada) &&
+                            Number.isFinite(record.salida1)
+                        );
+                    if (!records.length) {
+                        throw new Error(
+                            'No se encontraron filas válidas. ' +
+                            'El Excel debe contener fecha, entrada y salida.'
+                        );
                     }
-
+                    records.sort(
+                        (a, b) => a.date.getTime() - b.date.getTime()
+                    );
+                    tempHourlyProfile.timestamps =
+                        records.map(record =>
+                            new Date(record.date.getTime())
+                        );
+                    tempHourlyProfile.entrada =
+                        records.map(record =>
+                            Number(record.entrada.toFixed(2))
+                        );
+                    tempHourlyProfile.salida1 =
+                        records.map(record =>
+                            Number(record.salida1.toFixed(2))
+                        );
+                    tempHourlyProfile.burguillos =
+                        records.map(record =>
+                            Number(record.burguillos.toFixed(2))
+                        );
                     renderModalTable();
-                } catch (err) {
-                    console.error('Error al leer Excel:', err);
+                } catch (error) {
+                    console.error(
+                        'Error al leer el archivo Excel:',
+                        error
+                    );
+                    alert(
+                        'No se pudo leer el archivo Excel. ' +
+                        'Comprueba que las columnas sean: ' +
+                        'Fecha, Entrada, Salida y, para Alcalá, Burguillos.'
+                    );
+                } finally {
+                    event.target.value = '';
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -695,30 +809,41 @@
             } else {
                 tempHourlyProfile.entrada = [...PATTERN_ENTRADA_ENTRONQUE_DEFAULT];
                 tempHourlyProfile.salida1 = [...PATTERN_SALIDA_1_ENTRONQUE];
+                tempHourlyProfile.burguillos = Array(PATTERN_ENTRADA_ENTRONQUE_DEFAULT.length).fill(0);
             }
+            tempHourlyProfile.timestamps =
+                createProfileTimestamps(tempHourlyProfile.entrada.length);
             renderModalTable();
         }
 
         function saveModalChanges() {
             const targetObj = activeModalTarget === 'alcala' ? state.alcala : state.entronque;
-            targetObj.entradaProfile = [...tempHourlyProfile.entrada];
-            targetObj.salida1Profile = [...tempHourlyProfile.salida1];
+            targetObj.timestamps = tempHourlyProfile.timestamps.map(value => {const date = normalizeExcelDate(value);
+                    return date ? new Date(date.getTime()) : null;}).filter(Boolean);
+            targetObj.entradaProfile = tempHourlyProfile.entrada.map(value => Number((Number(value) || 0).toFixed(2)));
+            targetObj.salida1Profile = tempHourlyProfile.salida1.map(value => Number((Number(value) || 0).toFixed(2)));
             if (activeModalTarget === 'alcala') {
-                targetObj.burguillosProfile = [...tempHourlyProfile.burguillos];
+                targetObj.burguillosProfile = tempHourlyProfile.burguillos.map(value => Number((Number(value) || 0).toFixed(2)));
             }
+            if (targetObj.timestamps.length) {state.startDate = new Date(targetObj.timestamps[0].getTime());
+                state.startDate.setMilliseconds(0);
+                syncManeuverDateInput('alcala');
+                syncManeuverDateInput('entronque');
+            }
+            targetObj.maxHours = Math.min(168, targetObj.entradaProfile.length);
             targetObj.isCustomData = true;
-
-            const newAvg = Math.round(targetObj.entradaProfile.reduce((a,b)=>a+b, 0) / 24);
+            const newAvg = targetObj.entradaProfile.length ? targetObj.entradaProfile.reduce((sum, value) => sum + value, 0) / targetObj.entradaProfile.length : 0;
             targetObj.caudalEntradaMedio = newAvg;
-
+            const inputId = activeModalTarget === 'alcala' ? 'alc-caudal-entrada' : 'ent-caudal-entrada';
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = newAvg.toFixed(2);
+            }
             if (activeModalTarget === 'alcala') {
-                document.getElementById('alc-caudal-entrada').value = newAvg;
                 updateAlcalaSimulation();
             } else {
-                document.getElementById('ent-caudal-entrada').value = newAvg;
                 updateEntronqueSimulation();
             }
-
             closeExcelModal();
         }
 
